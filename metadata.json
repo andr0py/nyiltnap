@@ -1,0 +1,6 @@
+{
+  "name": "Nyílt Napi Érintőképernyő Kioszk",
+  "description": "Gyerekbarát, 100%-ban offline és névtelen érintőképernyő-diagnosztikai minijáték-gyűjtemény nyílt napokra.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

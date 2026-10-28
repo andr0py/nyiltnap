@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Nyílt Napi Érintőképernyő Kioszk</title>
+  <meta name="description" content="Gyerekbarát, 100%-ban offline és névtelen érintőképernyő-diagnosztikai minijáték-gyűjtemény nyílt napokra." />
+  <meta property="og:title" content="Nyílt Napi Érintőképernyő Kioszk" />
+  <meta property="og:description" content="Gyerekbarát, 100%-ban offline és névtelen érintőképernyő-diagnosztikai minijáték-gyűjtemény nyílt napokra." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+
+  <!-- ====================================================================
+       FEJLÉC (3 ZÓNA + REJTETT ANIMÁTOR TRIPLE-TAP RESET A LOGÓN/CÍMEN)
+       ==================================================================== -->
+  <header class="kiosk-header">
+    <!-- 1. Zóna: Márka embléma és cím (3 gyors koppintás = Animátor Reset!) -->
+    <div class="brand-trigger js-triple-tap-reset" id="animator-reset-trigger" title="Nyílt Napi Játéksziget">
+      <div class="brand-emblem" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <path d="M6 21C6 12 16 8 25 14C28 16 27 21 22 22H8" fill="#22c55e" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M8 21C3 21 2 15 6 15C8 15 8 18 6 18" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="21" cy="15" r="2.6" fill="#1e293b"/>
+        </svg>
+      </div>
+      <span class="brand-title">Nyílt Napi Játéksziget</span>
+    </div>
+
+    <!-- 2. Zóna: Egysoros gyorsnavigáció -->
+    <nav class="header-nav-links" aria-label="Játékok gyorselérése">
+      <button type="button" class="nav-text-btn" data-launch-screen="screen-chameleon">Kaméleon</button>
+      <button type="button" class="nav-text-btn" data-launch-screen="screen-grid">Pixel-Kifestő</button>
+      <button type="button" class="nav-text-btn" data-launch-screen="screen-multitouch">Tűzijáték</button>
+      <button type="button" class="nav-text-btn" data-launch-screen="screen-target">Célpont</button>
+      <button type="button" class="nav-text-btn" data-launch-screen="screen-sharpness">Formák</button>
+    </nav>
+
+    <!-- 3. Zóna: Kioszk vezérlőgombok (minden gomb >= 60x60px; Hang alapból rejtve) -->
+    <div class="header-actions">
+      <button type="button" id="btn-sound-toggle" class="btn-storybook" style="display: none;" title="Hangjelzések ki- és bekapcsolása">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <polygon points="4,9 9,9 14,4 14,20 9,15 4,15" fill="#facc15" stroke="#1e293b" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M17.5 8.5C19 10 19 14 17.5 15.5" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span id="sound-label">Hang: Be</span>
+      </button>
+
+      <button type="button" id="btn-open-certificate" class="btn-storybook btn-primary" data-launch-screen="screen-certificate">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="9" r="6" fill="#ffffff" stroke="#1e293b" stroke-width="2.2"/>
+          <path d="M9 14L7 21L12 18.5L17 21L15 14" fill="#ef4444" stroke="#1e293b" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span id="cert-progress-label">Oklevél (0/5)</span>
+      </button>
+
+      <button type="button" id="btn-global-home" class="btn-storybook" title="Vissza a kezdőlapra">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 11L12 3L21 11V20H15V14H9V20H3V11Z" fill="#bae6fd" stroke="#1e293b" stroke-width="2.2" stroke-linejoin="round"/>
+        </svg>
+        <span>Kezdőlap</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Opcionális morzsasáv sorrendi módhoz -->
+  <div id="kiosk-breadcrumbs" class="kiosk-breadcrumbs"></div>
+
+  <!-- ====================================================================
+       KÉPERNYŐK TÁROLÓJA (100vh GÖRGETÉS NÉLKÜL)
+       ==================================================================== -->
+  <main class="view-container">
+
+    <!-- ==================================================================
+         0. KEZDŐLAP: 5 SZABADON VÁLASZTHATÓ JÁTÉKKÁRTYA (NO-SCROLL)
+         ================================================================== -->
+    <section id="screen-welcome" class="screen active">
+      <div class="welcome-shell">
+        <div class="welcome-hero">
+          <h1 class="welcome-headline" id="welcome-company-title">
+            Üdvözlünk a [Cég Neve] 2026-os Nyílt Napján!
+          </h1>
+          <p class="welcome-subtitle">
+            Válassz bármelyik játékkártyából! Ha mind az 5 próbát teljesíted, megszerzed a Nyílt Napi Érintőképernyő Mester oklevelet!
+          </p>
+        </div>
+
+        <!-- 5 különálló játékkártya szabad sorrendben -->
+        <div class="games-grid">
+
+          <!-- Kártya 1: Károly, a Kaméleon -->
+          <button type="button" class="game-card" data-launch-screen="screen-chameleon">
+            <div class="game-card-top">
+              <div class="game-illustration illus-green" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M10 31C10 17 24 12 36 20C41 23 40 31 33 33H14" fill="#22c55e" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M14 31C6 31 4 21 10 21C14 21 14 26 10 26" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="31" cy="22" r="4.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.5"/>
+                  <circle cx="32" cy="22" r="2" fill="#1e293b"/>
+                  <path d="M29 29Q34 32 37 28" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="game-status-text">Kipróbálásra vár</span>
+            </div>
+            <div class="game-card-body">
+              <h2 class="game-card-title">Károly, a Kaméleon</h2>
+              <p class="game-card-desc">
+                Károly felveszi a színeket és a lágy mintákat! Megtalálod őt mind a 7 búvóhelyen?
+              </p>
+            </div>
+            <div class="game-card-cta">
+              <span class="game-card-cta-label">Indítás!</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </button>
+
+          <!-- Kártya 2: Pixel-Kifestő Rácsteszt -->
+          <button type="button" class="game-card" data-launch-screen="screen-grid">
+            <div class="game-card-top">
+              <div class="game-illustration illus-amber" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <rect x="7" y="7" width="14" height="14" rx="4" fill="#facc15" stroke="#1e293b" stroke-width="3"/>
+                  <rect x="27" y="7" width="14" height="14" rx="4" fill="#38bdf8" stroke="#1e293b" stroke-width="3"/>
+                  <rect x="7" y="27" width="14" height="14" rx="4" fill="#4ade80" stroke="#1e293b" stroke-width="3"/>
+                  <rect x="27" y="27" width="14" height="14" rx="4" fill="#ef4444" stroke="#1e293b" stroke-width="3"/>
+                </svg>
+              </div>
+              <span class="game-status-text">Kipróbálásra vár</span>
+            </div>
+            <div class="game-card-body">
+              <h2 class="game-card-title">Pixel-Kifestő Meglepetés</h2>
+              <p class="game-card-desc">
+                Színezd be az ujjaddal a kockákat a sarkokig, és nézd meg, milyen titkos pixel-alakzat rajzolódik ki!
+              </p>
+            </div>
+            <div class="game-card-cta">
+              <span class="game-card-cta-label">Indítás!</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </button>
+
+          <!-- Kártya 3: Tűzijátékos Multi-Touch -->
+          <button type="button" class="game-card" data-launch-screen="screen-multitouch">
+            <div class="game-card-top">
+              <div class="game-illustration illus-purple" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <polygon points="24,6 28,17 40,18 31,26 34,38 24,31 14,38 17,26 8,18 20,17" fill="#facc15" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"/>
+                  <circle cx="10" cy="10" r="3" fill="#fb7185"/>
+                  <circle cx="39" cy="11" r="3" fill="#38bdf8"/>
+                </svg>
+              </div>
+              <span class="game-status-text">Kipróbálásra vár</span>
+            </div>
+            <div class="game-card-body">
+              <h2 class="game-card-title">Tűzijáték Mód (Többujjas)</h2>
+              <p class="game-card-desc">
+                Tedd egyszerre akár mind a 10 ujjad a képernyőre, és varázsolj szikrázó csillag-tűzijátékot!
+              </p>
+            </div>
+            <div class="game-card-cta">
+              <span class="game-card-cta-label">Indítás!</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </button>
+
+          <!-- Kártya 4: 30 Másodperces Célpontvadászat -->
+          <button type="button" class="game-card" data-launch-screen="screen-target">
+            <div class="game-card-top">
+              <div class="game-illustration illus-coral" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <circle cx="24" cy="24" r="17" fill="#ef4444" stroke="#1e293b" stroke-width="3"/>
+                  <circle cx="24" cy="24" r="10.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.6"/>
+                  <circle cx="24" cy="24" r="4.5" fill="#ef4444" stroke="#1e293b" stroke-width="2"/>
+                </svg>
+              </div>
+              <span class="game-status-text">Kipróbálásra vár</span>
+            </div>
+            <div class="game-card-body">
+              <h2 class="game-card-title">30 mp Célpontvadászat</h2>
+              <p class="game-card-desc">
+                30 másodperced van! Koppints minél gyorsabban a felbukkanó színes célpontokra, és döntsd meg a rekordot!
+              </p>
+            </div>
+            <div class="game-card-cta">
+              <span class="game-card-cta-label">Indítás!</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </button>
+
+          <!-- Kártya 5: Képélesség és Geometria -->
+          <button type="button" class="game-card" data-launch-screen="screen-sharpness">
+            <div class="game-card-top">
+              <div class="game-illustration illus-blue" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <circle cx="18" cy="25" r="11" fill="#7dd3fc" stroke="#1e293b" stroke-width="3"/>
+                  <polygon points="33,11 42,35 24,35" fill="#fde047" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <span class="game-status-text">Kipróbálásra vár</span>
+            </div>
+            <div class="game-card-body">
+              <h2 class="game-card-title">Képélesség és Formák</h2>
+              <p class="game-card-desc">
+                Nézd meg közelről a színes köröket, csillagokat és betűket: minden forma szép kerek és éles?
+              </p>
+            </div>
+            <div class="game-card-cta">
+              <span class="game-card-cta-label">Indítás!</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </button>
+
+        </div>
+
+        <!-- Alsó összesítő sáv + Oklevél megnyitó gomb -->
+        <div class="welcome-footer-bar">
+          <div class="welcome-progress-note" id="welcome-progress-note">
+            Teljesített játékok: 0 / 5 · Bármelyik kártyával kezdhetsz!
+          </div>
+          <button type="button" id="welcome-cert-btn" class="btn-storybook btn-green btn-lg" data-launch-screen="screen-certificate">
+            <span>Oklevél megtekintése</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         1. MODUL: KÁROLY, A KAMÉLEON BÚJÓCSKA
+         ================================================================== -->
+    <section id="screen-chameleon" class="screen">
+      <div class="storybook-modal-overlay" id="briefing-chameleon">
+        <div class="storybook-dialog">
+          <div class="dialog-mascot illus-green" aria-hidden="true">
+            <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+              <path d="M14 42C14 23 32 16 48 27C55 31 53 42 44 44H19" fill="#22c55e" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M19 42C9 42 7 29 14 29C19 29 19 35 14 35" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="41" cy="29" r="6" fill="#ffffff" stroke="#1e293b" stroke-width="3"/>
+              <circle cx="43" cy="29" r="2.6" fill="#1e293b"/>
+              <path d="M38 38Q45 43 49 37" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h2 class="dialog-title">Károly, a Kaméleon Bújócska</h2>
+          <p class="dialog-speech">
+            „Szia! Károly vagyok, a kaméleon. Szeretek bújócskázni! Megtalálsz a képeken?”
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook js-back-to-hub">Vissza</button>
+            <button type="button" class="btn-storybook btn-green btn-lg" id="btn-start-chameleon">
+              Keresés indítása!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="storybook-modal-overlay hidden" id="summary-chameleon">
+        <div class="storybook-dialog">
+          <h2 class="dialog-title">Megtaláltad Károlyt!</h2>
+          <p class="dialog-speech" id="chameleon-summary-text">
+            Mind a 7 búvóhelyen megtaláltad Károlyt!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook" id="btn-chameleon-replay">Újra bújócskázom</button>
+            <button type="button" class="btn-storybook btn-green btn-lg" id="btn-chameleon-finish">
+              Tovább a játékokhoz!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-hud-bar" id="hud-chameleon">
+        <div class="hud-cluster">
+          <div class="hud-reset-emblem js-triple-tap-reset" title="Nyílt Napi Játéksziget">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path d="M6 21C6 12 16 8 25 14C28 16 27 21 22 22H8" fill="#22c55e" stroke="#1e293b" stroke-width="2.5"/>
+              <circle cx="21" cy="15" r="2.5" fill="#1e293b"/>
+            </svg>
+          </div>
+          <div class="hud-counter-box">
+            <span id="chameleon-hud-count">Károly: 0 / 7</span>
+            <span class="hud-stage-dots" id="chameleon-stage-dots" aria-hidden="true"></span>
+            <span aria-hidden="true">·</span>
+            <span id="chameleon-hud-time">0.0 mp</span>
+          </div>
+        </div>
+        <div class="hud-cluster">
+          <button type="button" class="btn-storybook js-back-to-hub">Kártyák</button>
+        </div>
+      </div>
+
+      <canvas id="chameleon-canvas"></canvas>
+    </section>
+
+    <!-- ==================================================================
+         2. MODUL: PIXEL-KIFESTŐ RÁCSTESZT (VÉLETLENSZERŰ ALAKZATOKKAL)
+         ================================================================== -->
+    <section id="screen-grid" class="screen">
+      <div class="storybook-modal-overlay" id="briefing-grid">
+        <div class="storybook-dialog">
+          <div class="dialog-mascot illus-amber" aria-hidden="true">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <rect x="7" y="7" width="14" height="14" rx="4" fill="#facc15" stroke="#1e293b" stroke-width="3"/>
+              <rect x="27" y="7" width="14" height="14" rx="4" fill="#38bdf8" stroke="#1e293b" stroke-width="3"/>
+              <rect x="7" y="27" width="14" height="14" rx="4" fill="#4ade80" stroke="#1e293b" stroke-width="3"/>
+              <rect x="27" y="27" width="14" height="14" rx="4" fill="#ef4444" stroke="#1e293b" stroke-width="3"/>
+            </svg>
+          </div>
+          <h2 class="dialog-title">Pixel-Kifestő Meglepetés</h2>
+          <p class="dialog-speech">
+            Húzd végig az ujjad a fehér kockákon egészen a sarkokig! Minden kocka más-más színt rejt, és a végén egy meglepetés pixel-kép rajzolódik ki!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook js-back-to-hub">Vissza</button>
+            <button type="button" class="btn-storybook btn-primary btn-lg" id="btn-start-grid">
+              Színezés indítása!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="storybook-modal-overlay hidden" id="summary-grid">
+        <div class="storybook-dialog">
+          <h2 class="dialog-title">Előbújt a titkos kép!</h2>
+          <p class="dialog-speech" id="grid-summary-text">
+            Ügyesen kiszínezted a képernyőt!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook" id="btn-grid-replay">Új titkos kép</button>
+            <button type="button" class="btn-storybook btn-green btn-lg" id="btn-grid-finish">
+              Tovább a játékokhoz!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-hud-bar" id="hud-grid">
+        <div class="hud-cluster">
+          <div class="hud-reset-emblem js-triple-tap-reset" title="Nyílt Napi Játéksziget">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <rect x="5" y="5" width="9" height="9" rx="2" fill="#facc15" stroke="#1e293b" stroke-width="2.2"/>
+              <rect x="18" y="18" width="9" height="9" rx="2" fill="#ef4444" stroke="#1e293b" stroke-width="2.2"/>
+            </svg>
+          </div>
+          <div class="hud-counter-box">
+            <span id="grid-hud-pct">Kiszínezve: 0%</span>
+          </div>
+        </div>
+        <div class="hud-cluster">
+          <button type="button" class="btn-storybook" id="btn-grid-clear">Új kép</button>
+          <button type="button" class="btn-storybook btn-green" id="btn-grid-done">Kész vagyok!</button>
+          <button type="button" class="btn-storybook js-back-to-hub">Kártyák</button>
+        </div>
+      </div>
+
+      <div class="grid-matrix-container" id="grid-matrix"></div>
+    </section>
+
+    <!-- ==================================================================
+         3. MODUL: TŰZIJÁTÉKOS MULTI-TOUCH TESZT
+         ================================================================== -->
+    <section id="screen-multitouch" class="screen">
+      <div class="storybook-modal-overlay" id="briefing-multitouch">
+        <div class="storybook-dialog">
+          <div class="dialog-mascot illus-purple" aria-hidden="true">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <polygon points="24,6 28,17 40,18 31,26 34,38 24,31 14,38 17,26 8,18 20,17" fill="#facc15" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="dialog-title">Tűzijáték Mód (Többujjas Teszt)</h2>
+          <p class="dialog-speech">
+            Tedd egyszerre minél több ujjad — akár mind a tízet — a képernyőre, és nézd, milyen hatalmas csillag-tűzijáték robban az égen!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook js-back-to-hub">Vissza</button>
+            <button type="button" class="btn-storybook btn-blue btn-lg" id="btn-start-multitouch">
+              Tűzijáték indítása!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="storybook-modal-overlay hidden" id="summary-multitouch">
+        <div class="storybook-dialog">
+          <h2 class="dialog-title">Ragyogó Tűzijáték!</h2>
+          <p class="dialog-speech" id="mt-summary-text">
+            Szuper tűzijátékot varázsoltál az égre!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook" id="btn-mt-replay">Még több tűzijáték</button>
+            <button type="button" class="btn-storybook btn-green btn-lg" id="btn-mt-finish">
+              Tovább a játékokhoz!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-hud-bar">
+        <div class="hud-cluster">
+          <div class="hud-reset-emblem js-triple-tap-reset" title="Nyílt Napi Játéksziget">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <polygon points="16,4 19,12 27,12 21,17 23,25 16,20 9,25 11,17 5,12 13,12" fill="#facc15" stroke="#1e293b" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="hud-counter-box">
+            <span id="mt-hud-active">Ujjak most: 0</span>
+            <span aria-hidden="true">·</span>
+            <span id="mt-hud-max">Rekord: 0</span>
+          </div>
+        </div>
+        <div class="hud-cluster">
+          <button type="button" class="btn-storybook btn-green" id="btn-mt-done">Kész vagyok!</button>
+          <button type="button" class="btn-storybook js-back-to-hub">Kártyák</button>
+        </div>
+      </div>
+
+      <canvas id="multitouch-canvas"></canvas>
+    </section>
+
+    <!-- ==================================================================
+         4. MODUL: 30 MÁSODPERCES CÉLPONTVADÁSZAT
+         ================================================================== -->
+    <section id="screen-target" class="screen">
+      <div class="storybook-modal-overlay" id="briefing-target">
+        <div class="storybook-dialog">
+          <div class="dialog-mascot illus-coral" aria-hidden="true">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="17" fill="#ef4444" stroke="#1e293b" stroke-width="3"/>
+              <circle cx="24" cy="24" r="10" fill="#ffffff" stroke="#1e293b" stroke-width="2.5"/>
+              <circle cx="24" cy="24" r="4.5" fill="#ef4444"/>
+            </svg>
+          </div>
+          <h2 class="dialog-title">30 Másodperces Célpontvadászat</h2>
+          <p class="dialog-speech">
+            30 másodperced van! Koppints minél gyorsabban a felbukkanó színes célpontokra!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook js-back-to-hub">Vissza</button>
+            <button type="button" class="btn-storybook btn-coral btn-lg" id="btn-start-target">
+              Vadászat indítása!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="storybook-modal-overlay hidden" id="summary-target">
+        <div class="storybook-dialog">
+          <h2 class="dialog-title">Lejárt a 30 másodperc!</h2>
+          <p class="dialog-speech" id="target-summary-text">
+            Ügyes célpontvadász vagy!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook" id="btn-target-replay">Újra próbálom</button>
+            <button type="button" class="btn-storybook btn-green btn-lg" id="btn-target-finish">
+              Tovább a játékokhoz!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-hud-bar">
+        <div class="hud-cluster">
+          <div class="hud-reset-emblem js-triple-tap-reset" title="Nyílt Napi Játéksziget">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="16" cy="16" r="11" fill="#ef4444" stroke="#1e293b" stroke-width="2.2"/>
+              <circle cx="16" cy="16" r="5" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="hud-counter-box" id="target-timer-box">
+            <span id="target-timer-val">Idő: 30 mp</span>
+          </div>
+          <div class="hud-counter-box">
+            <span id="target-score-val">Lelőtt célpontok: 0</span>
+          </div>
+        </div>
+        <div class="hud-cluster">
+          <button type="button" class="btn-storybook" id="btn-target-restart">Újra</button>
+          <button type="button" class="btn-storybook js-back-to-hub">Kártyák</button>
+        </div>
+      </div>
+
+      <canvas id="target-canvas"></canvas>
+    </section>
+
+    <!-- ==================================================================
+         5. MODUL: EGYSZERŰSÍTETT KÉPÉLESSÉG ÉS GEOMETRIA TESZT
+         ================================================================== -->
+    <section id="screen-sharpness" class="screen">
+      <div class="storybook-modal-overlay" id="briefing-sharpness">
+        <div class="storybook-dialog">
+          <div class="dialog-mascot illus-blue" aria-hidden="true">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+              <circle cx="18" cy="25" r="11" fill="#7dd3fc" stroke="#1e293b" stroke-width="3"/>
+              <polygon points="33,11 42,35 24,35" fill="#fde047" stroke="#1e293b" stroke-width="3" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="dialog-title">Képélesség és Formák</h2>
+          <p class="dialog-speech">
+            Nézd meg alaposan a megjelenő színes köröket, csillagokat és betűket, majd válaszd ki, hogy tisztán látszanak-e!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook js-back-to-hub">Vissza</button>
+            <button type="button" class="btn-storybook btn-blue btn-lg" id="btn-start-sharpness">
+              Formák megtekintése!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="storybook-modal-overlay hidden" id="summary-sharpness">
+        <div class="storybook-dialog">
+          <h2 class="dialog-title">Szemrevételezés kész!</h2>
+          <p class="dialog-speech" id="sharpness-summary-text">
+            Köszönjük a visszajelzést!
+          </p>
+          <div class="dialog-actions">
+            <button type="button" class="btn-storybook btn-green btn-lg" id="btn-sharpness-finish">
+              Tovább a játékokhoz!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-hud-bar">
+        <div class="hud-cluster">
+          <div class="hud-reset-emblem js-triple-tap-reset" title="Nyílt Napi Játéksziget">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="16" cy="16" r="10" fill="#7dd3fc" stroke="#1e293b" stroke-width="2.2"/>
+            </svg>
+          </div>
+          <button type="button" class="btn-storybook" id="btn-sharpness-pattern">
+            Másik háttér
+          </button>
+        </div>
+        <div class="hud-cluster">
+          <button type="button" class="btn-storybook js-back-to-hub">Kártyák</button>
+        </div>
+      </div>
+
+      <canvas id="sharpness-canvas"></canvas>
+
+      <div class="sharpness-prompt-bar" id="sharpness-prompt-bar" style="display: none;">
+        <span class="sharpness-question">Minden forma szép kerek és tisztán olvasható?</span>
+        <div class="sharpness-btn-group">
+          <button type="button" class="btn-storybook btn-green" id="btn-sharpness-yes">
+            Igen, éles!
+          </button>
+          <button type="button" class="btn-storybook btn-coral" id="btn-sharpness-no">
+            Nem, homályos!
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         6. MODUL: NÉVTELEN OKLEVÉL ÉS KONFETTI ANIMÁCIÓ (NO-SCROLL)
+         ================================================================== -->
+    <section id="screen-certificate" class="screen">
+      <canvas id="confetti-canvas"></canvas>
+
+      <div class="certificate-card">
+        <div class="cert-seal-header">
+          <div class="cert-medal-wrap" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M22 38L16 58L32 50L48 58L42 38" fill="#ef4444" stroke="#1e293b" stroke-width="3.2" stroke-linejoin="round"/>
+              <circle cx="32" cy="25" r="18" fill="#facc15" stroke="#1e293b" stroke-width="3.5"/>
+              <polygon points="32,13 35.5,21 44,21.8 37.5,27.5 39.5,36 32,31.4 24.5,36 26.5,27.5 20,21.8 28.5,21" fill="#ffffff" stroke="#1e293b" stroke-width="2.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="cert-master-title">Nyílt Napi Érintőképernyő Mester</h2>
+          <p class="cert-subtitle" id="cert-subtitle-text">
+            Gratulálunk! Nézd meg az elért eredményeidet!
+          </p>
+        </div>
+
+        <div class="cert-results-grid" id="cert-results-container"></div>
+
+        <div class="cert-footer-actions">
+          <button type="button" class="btn-storybook btn-lg" id="btn-cert-back-hub">
+            Vissza a játékkártyákhoz
+          </button>
+          <button type="button" class="btn-storybook btn-green btn-lg" id="btn-cert-restart">
+            Új játék indítása (Következő felfedező)
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="tap-fx-layer" aria-hidden="true"></div>
+  <div id="animator-toast" class="animator-toast" role="status" aria-live="polite"></div>
+
+  <!-- Inaktivitási Watchdog Modal (60 mp visszaszámláló) -->
+  <div id="modal-idle" class="idle-modal-backdrop">
+    <div class="storybook-dialog">
+      <div class="idle-countdown-big" id="idle-countdown-num">60</div>
+      <h2 class="dialog-title">Itt vagy még?</h2>
+      <p class="dialog-speech">
+        A játék hamarosan visszatér a kezdőlapra. Érintsd meg a képernyőt, ha szeretnéd folytatni!
+      </p>
+      <div class="dialog-actions">
+        <button type="button" id="btn-idle-resume" class="btn-storybook btn-green btn-lg">
+          Folytatom a játékot!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Beégésvédő Mesekönyvi Képernyővédő -->
+  <div id="screensaver-overlay" class="screensaver-overlay">
+    <canvas id="screensaver-canvas"></canvas>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

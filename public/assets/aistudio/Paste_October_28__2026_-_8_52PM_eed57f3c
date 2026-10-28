@@ -1,0 +1,3249 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dell All-in-One Kijelző és Érintőképernyő Hardverteszt</title>
+  <style>
+    /* ==========================================================================
+       DELL ENTERPRISE DIAGNOSTICS - CLEAN LIGHT DESIGN
+       100% Offline • Zero Emojis • Hiteles Eredményértékelés
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: none;
+    }
+
+    :root {
+      --dell-blue: #0076ce;
+      --dell-blue-hover: #005a9e;
+      --dell-blue-light: #e0f2fe;
+      --dell-dark-blue: #004b87;
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-secondary: #f1f5f9;
+      --border-subtle: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --border-accent: #0076ce;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-dim: #94a3b8;
+      --qc-pass: #16a34a;
+      --qc-pass-bg: #dcfce7;
+      --qc-pass-border: #86efac;
+      --qc-fail: #dc2626;
+      --qc-fail-bg: #fee2e2;
+      --qc-fail-border: #fca5a5;
+      --qc-warn: #d97706;
+      --qc-warn-bg: #fef3c7;
+      --qc-warn-border: #fde68a;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", Consolas, "Roboto Mono", "Segoe UI Mono", monospace;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.45;
+      cursor: none !important;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      cursor: none !important;
+    }
+
+    /* When a test is active, hide header & progress bar to allow 100% edge-to-edge testing */
+    body.test-running header.qc-header {
+      display: none !important;
+    }
+    body.test-running .qc-progress-bar {
+      display: none !important;
+    }
+    body.test-running main.view-container {
+      height: 100% !important;
+    }
+
+    /* ==========================================================================
+       HEADER - DELL ENTERPRISE LIGHT NAVIGATION
+       ========================================================================== */
+    header.qc-header {
+      height: 54px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dell-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      background: var(--dell-blue);
+      padding: 4px 12px;
+      border-radius: 2px;
+      cursor: none !important;
+    }
+
+    .header-metadata {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-metadata-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .header-metadata-sub {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spec-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-surface-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .spec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--qc-pass);
+    }
+
+    .btn-qc {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: none !important;
+      transition: all 0.15s ease;
+    }
+
+    .btn-qc:hover {
+      background: var(--bg-surface-secondary);
+      border-color: var(--border-accent);
+      color: var(--dell-blue);
+    }
+
+    .btn-qc:active {
+      background: var(--dell-blue-light);
+    }
+
+    .btn-qc-primary {
+      background: var(--dell-blue);
+      border-color: var(--dell-blue);
+      color: #ffffff;
+    }
+
+    .btn-qc-primary:hover {
+      background: var(--dell-blue-hover);
+      border-color: var(--dell-blue-hover);
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       PROGRESS BAR (ACCURATE REAL-TIME STATUS BREADCRUMB)
+       ========================================================================== */
+    .qc-progress-bar {
+      height: 42px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+      z-index: 90;
+    }
+
+    .step-track {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      background: var(--bg-surface-secondary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      cursor: none !important;
+      transition: all 0.15s ease;
+    }
+
+    .step-item.active {
+      background: var(--dell-blue-light);
+      border-color: var(--dell-blue);
+      color: var(--dell-dark-blue);
+      font-weight: 700;
+    }
+
+    .step-item.status-pass {
+      background: var(--qc-pass-bg) !important;
+      border-color: var(--qc-pass-border) !important;
+      color: var(--qc-pass) !important;
+      font-weight: 700;
+    }
+
+    .step-item.status-fail {
+      background: var(--qc-fail-bg) !important;
+      border-color: var(--qc-fail-border) !important;
+      color: var(--qc-fail) !important;
+      font-weight: 700;
+    }
+
+    .step-item.status-skipped {
+      background: var(--qc-warn-bg) !important;
+      border-color: var(--qc-warn-border) !important;
+      color: var(--qc-warn) !important;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       VIEW CONTAINER & STRICT FULLSCREEN SCREENS
+       ========================================================================== */
+    main.view-container {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 54px);
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .screen {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: none !important;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-page);
+      box-sizing: border-box;
+    }
+
+    .screen.active {
+      display: flex !important;
+    }
+
+    /* ==========================================================================
+       PRE-TEST INSTRUCTION BRIEFING OVERLAY (CLICK TO START)
+       ========================================================================== */
+    .pretest-briefing-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 24px;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .pretest-briefing-modal.hidden {
+      display: none !important;
+    }
+
+    .briefing-card {
+      max-width: 520px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+      text-align: left;
+    }
+
+    .briefing-card-header {
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .briefing-tag {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--dell-blue);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .briefing-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.3px;
+    }
+
+    .briefing-task-box {
+      background: var(--bg-surface-secondary);
+      border-left: 4px solid var(--dell-blue);
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .briefing-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* ==========================================================================
+       SCREEN EVALUATION MODAL (HUMAN INSPECTOR PROMPT)
+       ========================================================================== */
+    .eval-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      padding: 24px;
+    }
+
+    .eval-modal-backdrop.active {
+      display: flex !important;
+    }
+
+    .eval-card {
+      max-width: 500px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .eval-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .eval-desc {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .eval-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .btn-eval-pass {
+      background: var(--qc-pass);
+      border: 1px solid var(--qc-pass);
+      color: #ffffff;
+      padding: 14px 18px;
+      border-radius: 4px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: none !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-eval-pass:hover {
+      background: #15803d;
+    }
+
+    .btn-eval-fail {
+      background: #ffffff;
+      border: 1px solid var(--qc-fail-border);
+      color: var(--qc-fail);
+      padding: 14px 18px;
+      border-radius: 4px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: none !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-eval-fail:hover {
+      background: var(--qc-fail-bg);
+    }
+
+    /* ==========================================================================
+       NON-INTRUSIVE FLOATING TEST HUD (FOR INTERACTIVE TESTS)
+       ========================================================================== */
+    .floating-test-hud {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border-strong);
+      backdrop-filter: blur(10px);
+      padding: 6px 12px;
+      border-radius: 4px;
+      z-index: 150;
+      opacity: 0.45;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .floating-test-hud:hover, .floating-test-hud:active {
+      opacity: 1;
+    }
+
+    .floating-hud-text {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       SCREEN 0: WELCOME & HARDWARE OVERVIEW
+       ========================================================================== */
+    #screen-welcome {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+      background: var(--bg-page);
+    }
+
+    .hub-card {
+      max-width: 920px;
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 36px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .hub-header {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hub-title-block h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .hub-title-block p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .hub-tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      background: var(--dell-blue-light);
+      border: 1px solid rgba(0, 118, 206, 0.2);
+      border-radius: 3px;
+      color: var(--dell-dark-blue);
+    }
+
+    .test-modules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 820px) {
+      .test-modules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .module-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 22px;
+      cursor: none !important;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.15s ease;
+    }
+
+    .module-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-surface-secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 118, 206, 0.08);
+    }
+
+    .module-card.featured {
+      border-color: var(--dell-blue);
+      background: #f0f7ff;
+    }
+
+    .module-card.featured:hover {
+      background: #e5f1ff;
+    }
+
+    .module-index {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--dell-blue);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .module-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      letter-spacing: -0.2px;
+    }
+
+    .module-description {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    .module-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-dim);
+    }
+
+    .hw-specs-table {
+      background: var(--bg-surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 14px 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 680px) {
+      .hw-specs-table {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .hw-spec-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hw-spec-label {
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .hw-spec-val {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       SCREEN 1: PIXEL INTEGRITY (CURSOR NONE • 100% PURE FULLSCREEN)
+       ======================================================================== */
+    #screen-pixel {
+      background: #000000;
+      cursor: none !important;
+    }
+
+    #pixel-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 10;
+      cursor: none !important;
+    }
+
+    /* ==========================================================================
+       SCREEN 2: DIGITIZER MATRIX GRID COVERAGE (100% FULLSCREEN)
+       ========================================================================== */
+    #screen-grid {
+      background: #ffffff;
+    }
+
+    .grid-matrix-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      gap: 2px;
+      background: #cbd5e1;
+      padding: 2px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    .matrix-cell {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      cursor: none !important;
+      transition: background-color 0.06s;
+    }
+
+    .matrix-cell:hover:not(.active) {
+      background: var(--dell-blue-light);
+      border-color: var(--dell-blue);
+    }
+
+    .matrix-cell.active {
+      background: var(--qc-pass) !important;
+      border-color: #15803d !important;
+    }
+
+    /* ==========================================================================
+       SCREEN 3: MULTI-TOUCH DIGITIZER TRACKER (100% FULLSCREEN)
+       ========================================================================== */
+    #screen-multitouch {
+      background: #ffffff;
+    }
+
+    .multitouch-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: none !important;
+      z-index: 10;
+    }
+
+    #multitouch-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ==========================================================================
+       SCREEN 4: TARGET ACQUISITION & RESPONSE LATENCY (100% FULLSCREEN)
+       ========================================================================== */
+    #screen-bubbles {
+      background: #f8fafc;
+    }
+
+    .target-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: none !important;
+      z-index: 10;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #bubble-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      user-select: none;
+    }
+
+    /* ==========================================================================
+       SCREEN 5: GEOMETRY & CONVERGENCE (100% FULLSCREEN)
+       ========================================================================== */
+    #screen-geometry {
+      background: #000000;
+    }
+
+    .geometry-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+    }
+
+    #geometry-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ==========================================================================
+       SCREEN 6: QUALITY CONTROL INSPECTION REPORT
+       ========================================================================== */
+    #screen-certificate {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-y: auto;
+      background: var(--bg-page);
+    }
+
+    .report-sheet {
+      max-width: 840px;
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .report-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .report-title-box h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text-main);
+    }
+
+    .report-title-box span {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .report-stamp {
+      border: 2px solid var(--qc-pass);
+      color: var(--qc-pass);
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 6px 16px;
+      letter-spacing: 1px;
+      border-radius: 3px;
+      background: var(--qc-pass-bg);
+    }
+
+    .report-stamp.fault {
+      border-color: var(--qc-fail) !important;
+      color: var(--qc-fail) !important;
+      background: var(--qc-fail-bg) !important;
+    }
+
+    .report-stamp.warn {
+      border-color: var(--qc-warn) !important;
+      color: var(--qc-warn) !important;
+      background: var(--qc-warn-bg) !important;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+    }
+
+    .report-table th, .report-table td {
+      border: 1px solid var(--border-subtle);
+      padding: 12px 16px;
+      text-align: left;
+    }
+
+    .report-table th {
+      background: var(--bg-surface-secondary);
+      color: var(--text-secondary);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .report-table td {
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .report-table td.pass-status {
+      color: var(--qc-pass) !important;
+      font-weight: 700;
+    }
+
+    .report-table td.fail-status {
+      color: var(--qc-fail) !important;
+      font-weight: 700;
+    }
+
+    .report-table td.warn-status {
+      color: var(--qc-warn) !important;
+      font-weight: 700;
+    }
+
+    .report-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 18px;
+    }
+
+    .report-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    /* ==========================================================================
+       INACTIVITY WATCHDOG MODAL
+       ========================================================================== */
+    .qc-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .qc-modal-backdrop.active {
+      display: flex;
+    }
+
+    .qc-modal-panel {
+      max-width: 440px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ==========================================================================
+       SCREENSAVER OVERLAY (PANEL BURN-IN PROTECTION & KIOSK ENGAGEMENT)
+       ========================================================================== */
+    .screensaver-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 2500;
+      display: none;
+      cursor: none !important;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .screensaver-overlay.active {
+      display: block;
+    }
+
+    #screensaver-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header: Dell Enterprise Light Bar -->
+  <header class="qc-header">
+    <div class="brand-group">
+      <div class="dell-logo-badge" id="btn-brand-home" title="Dell Kezdőlap">
+        DELL
+      </div>
+      <div class="header-metadata">
+        <div class="header-metadata-title">Kijelző és Érintőpanel Hardverteszt</div>
+        <div class="header-metadata-sub">All-in-One Kioszk Állomás</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="spec-pill" title="Hardveres felbontás">
+        <div class="spec-dot"></div>
+        <span id="nav-display-res">1920x1080</span>
+      </div>
+
+      <button id="btn-sound-toggle" class="btn-qc" title="Hangjelzések kapcsolása">
+        <span id="sound-label">Hang: Be</span>
+      </button>
+
+      <button id="btn-fullscreen-toggle" class="btn-qc" title="Teljes képernyős mód">
+        <span>Kioszk</span>
+      </button>
+
+      <button id="btn-global-home" class="btn-qc" title="Visszatérés a főmenübe">
+        <span>Kezdőlap</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Progress Bar (Breadcrumb with accurate real-time status) -->
+  <div id="qc-progress" class="qc-progress-bar">
+    <div style="font-family:var(--font-mono); font-weight:700; color:var(--text-secondary)">TESZTSOR:</div>
+    <div class="step-track">
+      <div class="step-item" id="step-node-pixel" data-screen="screen-pixel">1. Színek & Minták</div>
+      <div class="step-item" id="step-node-grid" data-screen="screen-grid">2. Rács</div>
+      <div class="step-item" id="step-node-multitouch" data-screen="screen-multitouch">3. Multi-Touch</div>
+      <div class="step-item" id="step-node-bubbles" data-screen="screen-bubbles">4. Célpont</div>
+      <div class="step-item" id="step-node-geometry" data-screen="screen-geometry">5. Geometria</div>
+      <div class="step-item" id="step-node-cert" data-screen="screen-certificate">6. Jelentés</div>
+    </div>
+    <button id="btn-skip-step" class="btn-qc btn-qc-primary" style="height:28px; padding:0 12px; font-size:0.78rem;">
+      Következő teszt
+    </button>
+  </div>
+
+  <!-- VIEW CONTAINER (ALL SCREENS OCCUPY 100% OF THIS AREA) -->
+  <main class="view-container">
+
+    <!-- ====================================================================
+         SCREEN 0: WELCOME & HARDWARE OVERVIEW
+         ==================================================================== -->
+    <section id="screen-welcome" class="screen active">
+      <div class="hub-card">
+        <div class="hub-header">
+          <div class="hub-title-block">
+            <h2>Kijelző és Érintőpanel Teszt</h2>
+            <p>Üdvözlünk a nyílt napon! Válassz egy tesztet a Dell érintőképernyő kipróbálásához.</p>
+          </div>
+          <div class="hub-tag">STATION QC-01 • READY</div>
+        </div>
+
+        <div class="test-modules-grid">
+          <!-- Card 1: Full Guided QC -->
+          <div class="module-card featured" id="card-start-guided">
+            <div class="module-index">MODUL // 01</div>
+            <div class="module-name">Teljes Tesztsorozat</div>
+            <div class="module-description">
+              Végigvezetett ellenőrzés tiszta színekkel, érintési ráccsal, multi-touch érzékeléssel és reakcióidő méréssel.
+            </div>
+            <div class="module-footer">
+              <span>AJÁNLOTT</span>
+              <span>~2 PERC</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Interactive Target Acquisition -->
+          <div class="module-card" id="card-start-targets">
+            <div class="module-index">MODUL // 02</div>
+            <div class="module-name">Célpont & Reakcióteszt</div>
+            <div class="module-description">
+              Dinamikus szonár célpontok érintési sebesség és reakcióidő méréssel.
+            </div>
+            <div class="module-footer">
+              <span>INTERAKTÍV</span>
+              <span>LATENCY QC</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Manual Direct Selection -->
+          <div class="module-card" id="card-start-manual">
+            <div class="module-index">MODUL // 03</div>
+            <div class="module-name">Színek & Gyári Minták</div>
+            <div class="module-description">
+              Közvetlen képponthiba-kereső tiszta alapszínekkel és gyári tesztmintákkal.
+            </div>
+            <div class="module-footer">
+              <span>SZEMREVÉTELEZÉS</span>
+              <span>STANDALONE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Specs Readout -->
+        <div class="hw-specs-table">
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Felbontás</span>
+            <span class="hw-spec-val" id="hw-res-val">1920 × 1080</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Érintés Érzékelés</span>
+            <span class="hw-spec-val" id="hw-touch-val">10 pontos kapacitív</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Képfrissítés</span>
+            <span class="hw-spec-val" id="hw-fps-val">60 Hz</span>
+          </div>
+          <div class="hw-spec-item">
+            <span class="hw-spec-label">Állapot</span>
+            <span class="hw-spec-val" style="color:var(--qc-pass)">Kioszk Üzemkész</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 1: PIXEL INTEGRITY (CURSOR NONE • 100% PURE FULLSCREEN)
+         ==================================================================== -->
+    <section id="screen-pixel" class="screen">
+      <!-- Tesztelőrő-kártya (Érintésre indul) -->
+      <div class="pretest-briefing-modal" id="briefing-pixel">
+        <div class="briefing-card">
+          <div class="briefing-card-header">
+            <div class="briefing-tag">MODUL 01 // KÉPPONTVIZSGÁLAT</div>
+            <h3 class="briefing-title">Színek és Gyári Minták</h3>
+          </div>
+          <div class="briefing-task-box">
+            <strong>Feladat:</strong> Érints a képernyőre a színek és minták váltásához. Figyeld meg, hogy látsz-e hibás képpontot vagy színhibát.
+          </div>
+          <div class="briefing-actions">
+            <button class="btn-qc btn-qc-primary btn-start-test" data-test="pixel" style="height:40px; padding:0 24px; font-size:0.92rem;">
+              Teszt indítása
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Human Evaluation Prompt at end of pixel test -->
+      <div class="eval-modal-backdrop" id="eval-pixel">
+        <div class="eval-card">
+          <div class="eval-title">Kijelző Ellenőrzés</div>
+          <div class="eval-desc">
+            Láttál hibás (beragadt, sötét) képpontot, fényszivárgást vagy foltot a képernyőn?
+          </div>
+          <div class="eval-buttons">
+            <button class="btn-eval-pass" id="btn-eval-pixel-pass">
+              <span>A kijelző hibátlan</span>
+              <small style="font-weight:400; opacity:0.9;">Minden pont rendben [Megfelelt]</small>
+            </button>
+            <button class="btn-eval-fail" id="btn-eval-pixel-fail">
+              <span>Hibát vettem észre</span>
+              <small style="font-weight:400; opacity:0.85;">Képponthiba / Szivárgás van</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 100% Fullscreen Pure Color/Pattern Canvas (Cursor hidden, zero text) -->
+      <canvas id="pixel-canvas"></canvas>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 2: DIGITIZER MATRIX GRID COVERAGE (100% FULLSCREEN MATRIX)
+         ==================================================================== -->
+    <section id="screen-grid" class="screen">
+      <!-- Tesztelőrő-kártya (Érintésre indul) -->
+      <div class="pretest-briefing-modal" id="briefing-grid">
+        <div class="briefing-card">
+          <div class="briefing-card-header">
+            <div class="briefing-tag">MODUL 02 // FELÜLETI LEFEDETTSÉG</div>
+            <h3 class="briefing-title">Érintőfelület Mátrix</h3>
+          </div>
+          <div class="briefing-task-box">
+            <strong>Feladat:</strong> Húzd végig az ujjad a képernyő teljes felületén a sarkokig, és töltsd ki az összes mezőt.
+          </div>
+          <div class="briefing-actions">
+            <button class="btn-qc btn-qc-primary btn-start-test" data-test="grid" style="height:40px; padding:0 24px; font-size:0.92rem;">
+              Teszt indítása
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Non-Intrusive HUD -->
+      <div class="floating-test-hud" id="hud-grid">
+        <span class="floating-hud-text">Lefedettség: <strong id="grid-hud-pct" style="color:var(--qc-pass)">0%</strong></span>
+        <button class="btn-qc" style="height:26px; padding:0 8px; font-size:0.75rem;" id="btn-grid-reset-hud">Törlés</button>
+        <button class="btn-qc btn-qc-primary" style="height:26px; padding:0 8px; font-size:0.75rem;" id="btn-grid-done-hud">Tovább</button>
+      </div>
+
+      <!-- 100% Fullscreen Matrix Grid -->
+      <div class="grid-matrix-container" id="grid-matrix"></div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 3: MULTI-TOUCH DIGITIZER TRACKER (100% FULLSCREEN CANVAS)
+         ==================================================================== -->
+    <section id="screen-multitouch" class="screen">
+      <!-- Tesztelőrő-kártya (Érintésre indul) -->
+      <div class="pretest-briefing-modal" id="briefing-multitouch">
+        <div class="briefing-card">
+          <div class="briefing-card-header">
+            <div class="briefing-tag">MODUL 03 // MULTI-TOUCH</div>
+            <h3 class="briefing-title">Többujjas Érintés</h3>
+          </div>
+          <div class="briefing-task-box">
+            <strong>Feladat:</strong> Tegyél rá egyszerre több ujjat a kijelzőre, vagy rajzolj mindkét kezeddel szimultán vonalakat.
+          </div>
+          <div class="briefing-actions">
+            <button class="btn-qc btn-qc-primary btn-start-test" data-test="multitouch" style="height:40px; padding:0 24px; font-size:0.92rem;">
+              Teszt indítása
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Non-Intrusive HUD -->
+      <div class="floating-test-hud" id="hud-mt">
+        <span class="floating-hud-text">Érintési pontok: <strong id="mt-hud-count" style="color:var(--dell-blue)">0</strong></span>
+        <button class="btn-qc" style="height:26px; padding:0 8px; font-size:0.75rem;" id="btn-mt-clear-hud">Törlés</button>
+        <button class="btn-qc btn-qc-primary" style="height:26px; padding:0 8px; font-size:0.75rem;" id="btn-mt-done-hud">Tovább</button>
+      </div>
+
+      <!-- 100% Fullscreen Multitouch Canvas -->
+      <div class="multitouch-viewport">
+        <canvas id="multitouch-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 4: TARGET ACQUISITION & RESPONSE LATENCY (100% FULLSCREEN)
+         ==================================================================== -->
+    <section id="screen-bubbles" class="screen">
+      <!-- Tesztelőrő-kártya (Érintésre indul) -->
+      <div class="pretest-briefing-modal" id="briefing-bubbles">
+        <div class="briefing-card">
+          <div class="briefing-card-header">
+            <div class="briefing-tag">MODUL 04 // REAKCIÓIDŐ</div>
+            <h3 class="briefing-title">Célpont és Reakcióidő</h3>
+          </div>
+          <div class="briefing-task-box">
+            <strong>Feladat:</strong> Érintsd meg a megjelenő célpontokat a lehető leggyorsabban. A rendszer méri a válaszidődet.
+          </div>
+          <div class="briefing-actions">
+            <button class="btn-qc btn-qc-primary btn-start-test" data-test="bubbles" style="height:40px; padding:0 24px; font-size:0.92rem;">
+              Teszt indítása
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Non-Intrusive HUD -->
+      <div class="floating-test-hud" id="hud-targets">
+        <span class="floating-hud-text">Célpont: <strong id="targets-hud-count" style="color:var(--dell-blue)">0/15</strong></span>
+        <span class="floating-hud-text" style="color:var(--text-secondary)">Késleltetés: <strong id="targets-hud-lat" style="color:var(--qc-pass)">-- ms</strong></span>
+        <button class="btn-qc" style="height:26px; padding:0 8px; font-size:0.75rem;" id="btn-targets-reset-hud">Újra</button>
+        <button class="btn-qc btn-qc-primary" style="height:26px; padding:0 8px; font-size:0.75rem;" id="btn-targets-done-hud">Tovább</button>
+      </div>
+
+      <!-- 100% Fullscreen Target Canvas -->
+      <div class="target-viewport">
+        <canvas id="bubble-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 5: GEOMETRY & CONVERGENCE (100% FULLSCREEN)
+         ==================================================================== -->
+    <section id="screen-geometry" class="screen">
+      <!-- Tesztelőrő-kártya (Érintésre indul) -->
+      <div class="pretest-briefing-modal" id="briefing-geometry">
+        <div class="briefing-card">
+          <div class="briefing-card-header">
+            <div class="briefing-tag">MODUL 05 // GEOMETRIA</div>
+            <h3 class="briefing-title">Geometria és Élesség</h3>
+          </div>
+          <div class="briefing-task-box">
+            <strong>Feladat:</strong> Vizsgáld meg a körök szabályosságát és a szövegek élességét a kijelző szélein és közepén.
+          </div>
+          <div class="briefing-actions">
+            <button class="btn-qc btn-qc-primary btn-start-test" data-test="geometry" style="height:40px; padding:0 24px; font-size:0.92rem;">
+              Teszt indítása
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Human Evaluation Prompt at end of geometry test -->
+      <div class="eval-modal-backdrop" id="eval-geometry">
+        <div class="eval-card">
+          <div class="eval-title">Geometria és Élesség Értékelése</div>
+          <div class="eval-desc">
+            A körök szabályosak, a vonalak egyenesek és a szövegek tisztán olvashatóak voltak?
+          </div>
+          <div class="eval-buttons">
+            <button class="btn-eval-pass" id="btn-eval-geom-pass">
+              <span>Szabályos és éles</span>
+              <small style="font-weight:400; opacity:0.9;">Nem láttam torzulást [Megfelelt]</small>
+            </button>
+            <button class="btn-eval-fail" id="btn-eval-geom-fail">
+              <span>Torzulást láttam</span>
+              <small style="font-weight:400; opacity:0.85;">Homályos vagy torzult</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Non-Intrusive HUD -->
+      <div class="floating-test-hud" id="hud-geom">
+        <button class="btn-qc" style="height:26px; padding:0 10px; font-size:0.75rem;" id="btn-geom-toggle-hud">Minta váltása</button>
+        <button class="btn-qc btn-qc-primary" style="height:26px; padding:0 10px; font-size:0.75rem;" id="btn-geom-done-hud">Befejezés</button>
+      </div>
+
+      <!-- 100% Fullscreen Geometry Canvas -->
+      <div class="geometry-viewport">
+        <canvas id="geometry-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SCREEN 6: QUALITY CONTROL INSPECTION REPORT
+         ==================================================================== -->
+    <section id="screen-certificate" class="screen">
+      <div class="report-sheet">
+        <div class="report-header">
+          <div class="report-title-box">
+            <h3>HARDVER ELLENŐRZÉSI JEGYZŐKÖNYV</h3>
+            <span>DELL OPTIPLEX / INSPIRON ALL-IN-ONE QC PROTOCOL</span>
+          </div>
+          <div class="report-stamp" id="report-main-stamp">
+            VERIFIED PASS
+          </div>
+        </div>
+
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Teszt Ellenőrzés</th>
+              <th>Mért Hardver Paraméter</th>
+              <th>Értékelési Mód</th>
+              <th>Eredmény</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pixel Épség & Homogenitás</td>
+              <td id="rep-pixel-meas">Alapszínek & Minták (Színsáv, Sakktábla, Gradiens)</td>
+              <td>Szemrevételezés (Látogató)</td>
+              <td id="rep-pixel-status" class="pass-status">PASS [MEGFELELT]</td>
+            </tr>
+            <tr>
+              <td>Érintési Felületlefedettség</td>
+              <td id="rep-cov-meas">100% Aktív Zóna (Sarkok és Élek)</td>
+              <td>Digitizer Szenzor (Hardver)</td>
+              <td id="rep-cov-status" class="pass-status">PASS [MEGFELELT]</td>
+            </tr>
+            <tr>
+              <td>Multi-Touch Kapacitás</td>
+              <td id="rep-touch-meas">10 Egyidejű Érintési Pont</td>
+              <td>Digitizer Szenzor (Hardver)</td>
+              <td id="rep-touch-status" class="pass-status">PASS [MEGFELELT]</td>
+            </tr>
+            <tr>
+              <td>Érintési Késleltetés & Válaszidő</td>
+              <td id="rep-lat-meas">&lt; 16 ms Átlagos Digitizer Latency</td>
+              <td>Időzítő Szenzor (Hardver)</td>
+              <td id="rep-lat-status" class="pass-status">OPTIMÁLIS</td>
+            </tr>
+            <tr>
+              <td>Geometria & Szövegélesség</td>
+              <td id="rep-geom-meas">Optikai Körök, Sarok Célkeresztek & Szubpixel</td>
+              <td>Szemrevételezés (Látogató)</td>
+              <td id="rep-geom-status" class="pass-status">PASS [MEGFELELT]</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="report-meta-grid">
+          <div>
+            <strong>ÁLLOMÁS:</strong> STATION-QC-01
+          </div>
+          <div>
+            <strong>DÁTUM:</strong> <span id="rep-date-val">2026. Nyílt Nap</span>
+          </div>
+          <div>
+            <strong>MINŐSÍTÉS:</strong> <span id="rep-summary-text">Dell Display Inspection Passed</span>
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <button id="btn-finish-report" class="btn-qc btn-qc-primary" style="height:40px; padding:0 24px; font-size:0.9rem;">
+            Új tesztelő / Kezdőlap
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- INACTIVITY WATCHDOG MODAL (60S COUNTDOWN) -->
+  <div id="modal-idle" class="qc-modal-backdrop">
+    <div class="qc-modal-panel" style="text-align:center;">
+      <div style="font-family:var(--font-mono); font-size:3.2rem; font-weight:800; color:var(--dell-blue); margin-bottom:8px;" id="idle-countdown-num">
+        60
+      </div>
+      <div style="font-size:1.25rem; font-weight:800; color:var(--text-main); margin-bottom:8px;">
+        Itt vagy még?
+      </div>
+      <p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.5; margin-bottom:24px;">
+        A teszt hamarosan megszakad és visszatér a kezdőlapra.<br>
+        <strong>Érintsd meg a képernyőt a folytatáshoz!</strong>
+      </p>
+      <button id="btn-idle-resume" class="btn-qc btn-qc-primary" style="width:100%; justify-content:center; height:44px; font-size:0.95rem;">
+        Folytatom a tesztet
+      </button>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN SCREENSAVER (PANEL BURN-IN PROTECTION & KIOSK ENGAGEMENT) -->
+  <div id="screensaver-overlay" class="screensaver-overlay">
+    <canvas id="screensaver-canvas"></canvas>
+  </div>
+
+  <!-- ======================================================================
+       APPLICATION JAVASCRIPT ENGINE (100% OFFLINE)
+       ====================================================================== -->
+  <script>
+    /* ========================================================================
+       1. SYNTHESIZER SOUND ENGINE (Web Audio API)
+       ======================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggle() {
+        this.enabled = !this.enabled;
+        return this.enabled;
+      }
+
+      playPing(freq = 900, duration = 0.08) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.5, now + duration);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      playGridTone(index, total) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const baseFreq = 260;
+        const scale = [1, 1.125, 1.25, 1.333, 1.5, 1.666, 1.875, 2];
+        const step = Math.floor((index / total) * 16);
+        const freq = baseFreq * (scale[step % scale.length] || 1);
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+
+      playChord(points) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const baseFreq = 220;
+        const ratios = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.5];
+        const ratio = ratios[Math.min(points - 1, ratios.length - 1)] || 1;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * ratio, now);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.18);
+      }
+
+      playFanfare() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const notes = [
+          { f: 440, d: 0.1, delay: 0 },
+          { f: 554.37, d: 0.1, delay: 0.12 },
+          { f: 659.25, d: 0.12, delay: 0.24 },
+          { f: 880, d: 0.3, delay: 0.38 }
+        ];
+
+        notes.forEach(n => {
+          const now = this.ctx.currentTime + n.delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(n.f, now);
+
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + n.d);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + n.d);
+        });
+      }
+
+      playClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.02);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.02);
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /* ========================================================================
+       2. APPLICATION STATE & STRICT ACCURATE EVALUATIONS
+       ======================================================================== */
+    const STATE = {
+      currentScreen: 'screen-welcome',
+      isGuidedMode: false,
+      guidedScreens: ['screen-pixel', 'screen-grid', 'screen-multitouch', 'screen-bubbles', 'screen-geometry', 'screen-certificate'],
+      maxTouchDetected: 0,
+      gridCoveredPercent: 0,
+      targetsHitCount: 0,
+      avgLatencyMs: 0,
+      activeTestName: null,
+      results: {
+        pixel: { status: 'pending', detail: 'Nem vizsgált' },
+        grid: { status: 'pending', detail: 'Nem vizsgált' },
+        multitouch: { status: 'pending', detail: 'Nem vizsgált' },
+        bubbles: { status: 'pending', detail: 'Nem vizsgált' },
+        geometry: { status: 'pending', detail: 'Nem vizsgált' }
+      }
+    };
+
+    function resetQCState() {
+      STATE.maxTouchDetected = 0;
+      STATE.gridCoveredPercent = 0;
+      STATE.targetsHitCount = 0;
+      STATE.avgLatencyMs = 0;
+      STATE.activeTestName = null;
+      STATE.results = {
+        pixel: { status: 'pending', detail: 'Nem vizsgált' },
+        grid: { status: 'pending', detail: 'Nem vizsgált' },
+        multitouch: { status: 'pending', detail: 'Nem vizsgált' },
+        bubbles: { status: 'pending', detail: 'Nem vizsgált' },
+        geometry: { status: 'pending', detail: 'Nem vizsgált' }
+      };
+      updateProgressUI();
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+        STATE.currentScreen = screenId;
+      }
+
+      const progress = document.getElementById('qc-progress');
+      if (STATE.isGuidedMode && screenId !== 'screen-welcome' && screenId !== 'screen-certificate') {
+        progress.style.display = 'flex';
+      } else {
+        progress.style.display = 'none';
+      }
+
+      // Exit test-running mode initially so briefing is clean
+      document.body.classList.remove('test-running');
+
+      const testNameMap = {
+        'screen-pixel': 'pixel',
+        'screen-grid': 'grid',
+        'screen-multitouch': 'multitouch',
+        'screen-bubbles': 'bubbles',
+        'screen-geometry': 'geometry'
+      };
+
+      const testName = testNameMap[screenId];
+      if (testName) {
+        prepareTestBriefing(testName);
+      } else {
+        STATE.activeTestName = null;
+        if (screenId === 'screen-certificate') initCertificateScreen();
+      }
+
+      updateProgressUI();
+    }
+
+    function prepareTestBriefing(testName) {
+      STATE.activeTestName = testName;
+      document.querySelectorAll('.eval-modal-backdrop').forEach(m => m.classList.remove('active'));
+
+      const briefing = document.getElementById(`briefing-${testName}`);
+      if (briefing) {
+        briefing.classList.remove('hidden');
+      } else {
+        startActiveTest(testName);
+      }
+    }
+
+    function startActiveTest(testName) {
+      const briefing = document.getElementById(`briefing-${testName}`);
+      if (briefing) briefing.classList.add('hidden');
+
+      document.body.classList.add('test-running');
+      sound.playClick();
+
+      requestAnimationFrame(() => {
+        if (testName === 'pixel') initPixelScreen();
+        if (testName === 'grid') initGridScreen();
+        if (testName === 'multitouch') initMultitouchScreen();
+        if (testName === 'bubbles') initTargetScreen();
+        if (testName === 'geometry') initGeometryScreen();
+      });
+    }
+
+    document.querySelectorAll('.btn-start-test').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const testName = btn.dataset.test;
+        if (testName) startActiveTest(testName);
+      });
+    });
+
+    /* ========================================================================
+       ACCURATE REAL-TIME BREADCRUMB UPDATE (TRUTHFUL STATUS ONLY)
+       ======================================================================== */
+    function updateProgressUI() {
+      const stepItems = [
+        { id: 'step-node-pixel', key: 'pixel', title: '1. Színek' },
+        { id: 'step-node-grid', key: 'grid', title: '2. Rács' },
+        { id: 'step-node-multitouch', key: 'multitouch', title: '3. Multi-Touch' },
+        { id: 'step-node-bubbles', key: 'bubbles', title: '4. Célpont' },
+        { id: 'step-node-geometry', key: 'geometry', title: '5. Geometria' },
+        { id: 'step-node-cert', key: 'cert', title: '6. Jelentés' }
+      ];
+
+      const currentIdx = STATE.guidedScreens.indexOf(STATE.currentScreen);
+
+      stepItems.forEach((item, idx) => {
+        const el = document.getElementById(item.id);
+        if (!el) return;
+
+        el.className = 'step-item';
+
+        if (idx === currentIdx) {
+          el.classList.add('active');
+        }
+
+        if (item.key === 'cert') {
+          el.innerText = item.title;
+          return;
+        }
+
+        const res = STATE.results[item.key];
+        if (res.status === 'pass') {
+          el.classList.add('status-pass');
+          el.innerText = `${item.title} [PASS]`;
+        } else if (res.status === 'fail') {
+          el.classList.add('status-fail');
+          el.innerText = `${item.title} [HIBA]`;
+        } else if (res.status === 'skipped') {
+          el.classList.add('status-skipped');
+          el.innerText = `${item.title} [NEM TELJES]`;
+        } else {
+          el.innerText = item.title;
+        }
+      });
+    }
+
+    function evaluateCurrentTestOnExit() {
+      // Called when user transitions out of a test to ensure honest evaluation
+      const current = STATE.activeTestName;
+
+      if (current === 'grid') {
+        if (STATE.gridCoveredPercent >= 95) {
+          STATE.results.grid = { status: 'pass', detail: `${STATE.gridCoveredPercent}% aktív felület lefedve` };
+        } else if (STATE.gridCoveredPercent > 0) {
+          STATE.results.grid = { status: 'fail', detail: `Nem teljes: csak ${STATE.gridCoveredPercent}% lefedve` };
+        } else {
+          STATE.results.grid = { status: 'skipped', detail: 'Kihagyva: 0% lefedettség' };
+        }
+      } else if (current === 'multitouch') {
+        if (STATE.maxTouchDetected >= 5) {
+          STATE.results.multitouch = { status: 'pass', detail: `${STATE.maxTouchDetected} egyidejű érintési pont észlelve` };
+        } else if (STATE.maxTouchDetected >= 2) {
+          STATE.results.multitouch = { status: 'pass', detail: `${STATE.maxTouchDetected} pont szimultán követve` };
+        } else if (STATE.maxTouchDetected === 1) {
+          STATE.results.multitouch = { status: 'fail', detail: 'Csak 1 érintési pont érzékelve' };
+        } else {
+          STATE.results.multitouch = { status: 'skipped', detail: 'Kihagyva: 0 érintési pont' };
+        }
+      } else if (current === 'bubbles') {
+        if (STATE.targetsHitCount >= 10) {
+          STATE.results.bubbles = { status: 'pass', detail: `${STATE.targetsHitCount}/15 célpont (${STATE.avgLatencyMs} ms késleltetés)` };
+        } else if (STATE.targetsHitCount > 0) {
+          STATE.results.bubbles = { status: 'fail', detail: `Nem teljes: csak ${STATE.targetsHitCount}/15 célpont (${STATE.avgLatencyMs} ms)` };
+        } else {
+          STATE.results.bubbles = { status: 'skipped', detail: 'Kihagyva: 0 célpont megérintve' };
+        }
+      } else if (current === 'pixel') {
+        if (STATE.results.pixel.status === 'pending') {
+          STATE.results.pixel = { status: 'skipped', detail: 'A vizsgálat befejezése előtt továbbhaladva' };
+        }
+      } else if (current === 'geometry') {
+        if (STATE.results.geometry.status === 'pending') {
+          STATE.results.geometry = { status: 'skipped', detail: 'A vizsgálat befejezése előtt továbbhaladva' };
+        }
+      }
+    }
+
+    function advanceGuided() {
+      evaluateCurrentTestOnExit();
+      document.body.classList.remove('test-running');
+
+      if (!STATE.isGuidedMode) {
+        showScreen('screen-welcome');
+        return;
+      }
+      const currentIdx = STATE.guidedScreens.indexOf(STATE.currentScreen);
+      if (currentIdx >= 0 && currentIdx < STATE.guidedScreens.length - 1) {
+        showScreen(STATE.guidedScreens[currentIdx + 1]);
+      } else {
+        showScreen('screen-certificate');
+      }
+    }
+
+    document.querySelectorAll('.step-item').forEach(item => {
+      item.addEventListener('click', () => {
+        evaluateCurrentTestOnExit();
+        const target = item.dataset.screen;
+        if (target) {
+          sound.playClick();
+          showScreen(target);
+        }
+      });
+    });
+
+    document.getElementById('btn-skip-step').addEventListener('click', () => {
+      sound.playClick();
+      advanceGuided();
+    });
+
+    /* ========================================================================
+       3. RESIZE HELPER (TRUE 100% VIEWPORT CALCULATION)
+       ======================================================================== */
+    function resizeCanvas(canvas) {
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', () => {
+      requestAnimationFrame(() => {
+        if (STATE.currentScreen === 'screen-pixel' && pixelCanvas) drawPixelPattern();
+        if (STATE.currentScreen === 'screen-multitouch' && mtCanvas) resizeCanvas(mtCanvas);
+        if (STATE.currentScreen === 'screen-bubbles' && targetCanvas) resizeCanvas(targetCanvas);
+        if (STATE.currentScreen === 'screen-geometry' && geomCanvas) initGeometryScreen();
+        if (isScreensaverActive && ssCanvas) initScreensaverCanvas();
+      });
+    });
+
+    /* ========================================================================
+       4. HARDWARE SPEC DETECTION
+       ======================================================================== */
+    function detectSpecs() {
+      const w = window.screen.width;
+      const h = window.screen.height;
+      const dpr = window.devicePixelRatio || 1;
+      const touchPoints = navigator.maxTouchPoints || 0;
+
+      document.getElementById('nav-display-res').innerText = `${w}x${h}`;
+      document.getElementById('hw-res-val').innerText = `${w} × ${h} (${Math.round(w*dpr)}×${Math.round(h*dpr)})`;
+
+      const touchText = touchPoints > 0 ? `${touchPoints} pontos kapacitív digitizer` : 'Érintőképernyő üzemmód';
+      document.getElementById('hw-touch-val').innerText = touchText;
+
+      let count = 0;
+      let start = performance.now();
+      function measureFps(t) {
+        count++;
+        if (t - start >= 500) {
+          const fps = Math.round((count * 1000) / (t - start));
+          document.getElementById('hw-fps-val').innerText = `${fps} Hz`;
+        } else {
+          requestAnimationFrame(measureFps);
+        }
+      }
+      requestAnimationFrame(measureFps);
+    }
+
+    /* ========================================================================
+       5. HEADER CONTROLS
+       ======================================================================== */
+    const btnFullscreen = document.getElementById('btn-fullscreen-toggle');
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+    btnFullscreen.addEventListener('click', () => {
+      sound.playClick();
+      toggleFullscreen();
+    });
+
+    const btnSound = document.getElementById('btn-sound-toggle');
+    function toggleSound() {
+      const isSound = sound.toggle();
+      document.getElementById('sound-label').innerText = isSound ? 'Hang: Be' : 'Hang: Ki';
+      btnSound.style.opacity = isSound ? '1' : '0.6';
+      if (isSound) sound.playClick();
+    }
+    btnSound.addEventListener('click', toggleSound);
+
+    const goHome = () => {
+      evaluateCurrentTestOnExit();
+      sound.playClick();
+      document.body.classList.remove('test-running');
+      STATE.isGuidedMode = false;
+      showScreen('screen-welcome');
+      // Reset watchdog AFTER screen change so home-screen screensaver timer starts correctly
+      setTimeout(() => resetWatchdog(), 0);
+    };
+    document.getElementById('btn-global-home').addEventListener('click', goHome);
+    document.getElementById('btn-brand-home').addEventListener('click', goHome);
+
+    /* ========================================================================
+       6. INACTIVITY WATCHDOG & SCREEN SAVER (PANEL BURN-IN PROTECTION)
+       ======================================================================== */
+    let idleTimeout = null;
+    let idleInterval = null;
+    const IDLE_LIMIT = 120; // 2 minutes (120 seconds) inactivity
+    const IDLE_COUNTDOWN = 60; // 60 seconds countdown
+    let countdownVal = IDLE_COUNTDOWN;
+
+    let ssCanvas = null;
+    let ssCtx = null;
+    let ssAnimFrame = null;
+    let isScreensaverActive = false;
+
+    // Screensaver bouncing diagnostic widget state
+    const ssBox = {
+      x: 100,
+      y: 100,
+      w: 480,
+      h: 180,
+      vx: 1.3,
+      vy: 0.95
+    };
+    let ssParticles = [];
+
+    function drawRoundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    }
+
+    function initScreensaverCanvas() {
+      if (!ssCanvas) {
+        ssCanvas = document.getElementById('screensaver-canvas');
+        ssCtx = ssCanvas.getContext('2d');
+      }
+      ssCanvas.width = window.innerWidth;
+      ssCanvas.height = window.innerHeight;
+
+      // Seed subtle ambient pixel-exercising particles to refresh matrix
+      ssParticles = [];
+      const count = 40;
+      for (let i = 0; i < count; i++) {
+        ssParticles.push({
+          x: Math.random() * ssCanvas.width,
+          y: Math.random() * ssCanvas.height,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: (Math.random() - 0.5) * 0.7,
+          radius: 1.5 + Math.random() * 2,
+          alpha: 0.15 + Math.random() * 0.35,
+          color: trackerColors[Math.floor(Math.random() * trackerColors.length)]
+        });
+      }
+
+      ssBox.w = Math.min(500, ssCanvas.width - 60);
+      ssBox.h = 190;
+      ssBox.x = (ssCanvas.width - ssBox.w) / 2;
+      ssBox.y = (ssCanvas.height - ssBox.h) / 2;
+      ssBox.vx = 1.3;
+      ssBox.vy = 0.95;
+    }
+
+    function showScreensaver() {
+      if (isScreensaverActive) return;
+      isScreensaverActive = true;
+      const overlay = document.getElementById('screensaver-overlay');
+      overlay.classList.add('active');
+      initScreensaverCanvas();
+
+      if (ssAnimFrame) cancelAnimationFrame(ssAnimFrame);
+      animateScreensaver();
+    }
+
+    function hideScreensaver() {
+      if (!isScreensaverActive) return;
+      isScreensaverActive = false;
+      const overlay = document.getElementById('screensaver-overlay');
+      if (overlay) overlay.classList.remove('active');
+      if (ssAnimFrame) {
+        cancelAnimationFrame(ssAnimFrame);
+        ssAnimFrame = null;
+      }
+      sound.playClick();
+    }
+
+    function animateScreensaver() {
+      if (!isScreensaverActive) return;
+
+      const w = ssCanvas.width;
+      const h = ssCanvas.height;
+
+      // 1. Deep OLED-friendly pitch black background (protects pixels from burn-in)
+      ssCtx.fillStyle = '#000000';
+      ssCtx.fillRect(0, 0, w, h);
+
+      // 2. Faint ambient moving particles to gently refresh subpixel matrix
+      for (let i = 0; i < ssParticles.length; i++) {
+        const p = ssParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+
+        ssCtx.save();
+        ssCtx.globalAlpha = p.alpha;
+        ssCtx.fillStyle = p.color;
+        ssCtx.beginPath();
+        ssCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ssCtx.fill();
+        ssCtx.restore();
+      }
+
+      // 3. Move floating badge across screen and bounce smoothly off edges
+      ssBox.x += ssBox.vx;
+      ssBox.y += ssBox.vy;
+
+      if (ssBox.x <= 20) {
+        ssBox.x = 20;
+        ssBox.vx = Math.abs(ssBox.vx);
+      } else if (ssBox.x + ssBox.w >= w - 20) {
+        ssBox.x = w - 20 - ssBox.w;
+        ssBox.vx = -Math.abs(ssBox.vx);
+      }
+
+      if (ssBox.y <= 20) {
+        ssBox.y = 20;
+        ssBox.vy = Math.abs(ssBox.vy);
+      } else if (ssBox.y + ssBox.h >= h - 20) {
+        ssBox.y = h - 20 - ssBox.h;
+        ssBox.vy = -Math.abs(ssBox.vy);
+      }
+
+      // 4. Draw floating badge container
+      ssCtx.save();
+      ssCtx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+      drawRoundRect(ssCtx, ssBox.x, ssBox.y, ssBox.w, ssBox.h, 8);
+      ssCtx.fill();
+
+      // Glowing Dell blue border
+      ssCtx.strokeStyle = '#0076ce';
+      ssCtx.lineWidth = 2;
+      ssCtx.stroke();
+
+      // Top line accent
+      ssCtx.fillStyle = '#0076ce';
+      drawRoundRect(ssCtx, ssBox.x, ssBox.y, ssBox.w, 4, 2);
+      ssCtx.fill();
+
+      // Badge content text
+      ssCtx.fillStyle = '#94a3b8';
+      ssCtx.font = '700 11px "SF Mono", Consolas, monospace';
+      ssCtx.textAlign = 'left';
+      ssCtx.fillText('DELL HARDWARE DIAGNOSTICS // NYÍLT NAP', ssBox.x + 24, ssBox.y + 36);
+
+      ssCtx.fillStyle = '#ffffff';
+      ssCtx.font = '800 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ssCtx.fillText('Érintőképernyő és Kijelző Teszt', ssBox.x + 24, ssBox.y + 70);
+
+      // Pulsing invitation text
+      const pulse = 0.65 + Math.sin(performance.now() * 0.0035) * 0.35;
+      ssCtx.fillStyle = `rgba(0, 118, 206, ${pulse})`;
+      ssCtx.font = '700 14px "SF Mono", Consolas, monospace';
+      ssCtx.fillText('> ÉRINTSD MEG A KÉPERNYŐT A KEZDÉSHEZ <', ssBox.x + 24, ssBox.y + 115);
+
+      // Subtitle status
+      ssCtx.fillStyle = '#64748b';
+      ssCtx.font = '10px "SF Mono", Consolas, monospace';
+      ssCtx.fillText('Panelvédő üzemmód aktív • Digitizer készenlétben', ssBox.x + 24, ssBox.y + 152);
+
+      // Animated optic reticle in top-right of badge
+      const cx = ssBox.x + ssBox.w - 44;
+      const cy = ssBox.y + 44;
+      ssCtx.strokeStyle = '#0076ce';
+      ssCtx.lineWidth = 1.5;
+      ssCtx.beginPath();
+      ssCtx.arc(cx, cy, 14, 0, Math.PI * 2);
+      ssCtx.stroke();
+
+      ssCtx.beginPath();
+      ssCtx.arc(cx, cy, 3, 0, Math.PI * 2);
+      ssCtx.fillStyle = '#0076ce';
+      ssCtx.fill();
+
+      const rot = (performance.now() * 0.001) % (Math.PI * 2);
+      ssCtx.beginPath();
+      ssCtx.moveTo(cx + Math.cos(rot) * 18, cy + Math.sin(rot) * 18);
+      ssCtx.lineTo(cx - Math.cos(rot) * 18, cy - Math.sin(rot) * 18);
+      ssCtx.moveTo(cx + Math.cos(rot + Math.PI/2) * 18, cy + Math.sin(rot + Math.PI/2) * 18);
+      ssCtx.lineTo(cx - Math.cos(rot + Math.PI/2) * 18, cy - Math.sin(rot + Math.PI/2) * 18);
+      ssCtx.stroke();
+
+      ssCtx.restore();
+
+      ssAnimFrame = requestAnimationFrame(animateScreensaver);
+    }
+
+    function resetWatchdog() {
+      // 1. Wake up from screensaver if active
+      if (isScreensaverActive) {
+        hideScreensaver();
+      }
+
+      // 2. Hide countdown modal if active
+      hideIdleAlert();
+
+      // 3. Clear existing timers
+      if (idleTimeout) {
+        clearTimeout(idleTimeout);
+        idleTimeout = null;
+      }
+
+      // 4. Schedule new timer based on current screen
+      if (STATE.currentScreen === 'screen-welcome') {
+        // On welcome screen: activate screensaver after 2 minutes
+        idleTimeout = setTimeout(() => {
+          showScreensaver();
+        }, IDLE_LIMIT * 1000);
+      } else {
+        // Inside test / report: start 60s countdown after 2 minutes
+        idleTimeout = setTimeout(() => {
+          showIdleAlert();
+        }, IDLE_LIMIT * 1000);
+      }
+    }
+
+    function showIdleAlert() {
+      countdownVal = IDLE_COUNTDOWN;
+      const countEl = document.getElementById('idle-countdown-num');
+      countEl.innerText = countdownVal;
+      document.getElementById('modal-idle').classList.add('active');
+
+      if (idleInterval) clearInterval(idleInterval);
+      idleInterval = setInterval(() => {
+        countdownVal--;
+        countEl.innerText = countdownVal;
+        if (countdownVal <= 0) {
+          clearInterval(idleInterval);
+          idleInterval = null;
+          hideIdleAlert();
+          resetQCState();
+          goHome();
+        }
+      }, 1000);
+    }
+
+    function hideIdleAlert() {
+      if (idleInterval) {
+        clearInterval(idleInterval);
+        idleInterval = null;
+      }
+      const modal = document.getElementById('modal-idle');
+      if (modal) modal.classList.remove('active');
+    }
+
+    // Érintéses felébresztés - modal és képernyővédő
+    document.getElementById('modal-idle').addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      resetWatchdog();
+    });
+
+    document.getElementById('btn-idle-resume').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      resetWatchdog();
+    });
+
+    document.getElementById('screensaver-overlay').addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resetWatchdog();
+    });
+
+    // Global interaction listeners with jitter-resistant mousemove
+    let lastMouseX = null;
+    let lastMouseY = null;
+
+    ['pointerdown', 'touchstart', 'keydown'].forEach(evt => {
+      window.addEventListener(evt, () => resetWatchdog(), { passive: true });
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (lastMouseX === null) {
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        return;
+      }
+      const dist = Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY);
+      if (dist > 15) {
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        resetWatchdog();
+      }
+    }, { passive: true });
+
+    /* ========================================================================
+       7. SILENT KEYBOARD NAVIGATION (FOR TESTING AT HOME)
+       ======================================================================== */
+    window.addEventListener('keydown', (e) => {
+      const key = e.key;
+
+      if (key === 'm' || key === 'M') {
+        toggleSound();
+        e.preventDefault();
+        return;
+      }
+
+      if (key === 'f' || key === 'F') {
+        toggleFullscreen();
+        e.preventDefault();
+        return;
+      }
+
+      if (key === 'Escape' || key === 'h' || key === 'H') {
+        goHome();
+        e.preventDefault();
+        return;
+      }
+
+      if (STATE.activeTestName) {
+        const briefingEl = document.getElementById(`briefing-${STATE.activeTestName}`);
+        if (briefingEl && !briefingEl.classList.contains('hidden')) {
+          if (key === ' ' || key === 'Enter') {
+            startActiveTest(STATE.activeTestName);
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      const numMap = {
+        '1': 'screen-pixel',
+        '2': 'screen-grid',
+        '3': 'screen-multitouch',
+        '4': 'screen-bubbles',
+        '5': 'screen-geometry',
+        '6': 'screen-certificate'
+      };
+      if (numMap[key]) {
+        evaluateCurrentTestOnExit();
+        sound.playClick();
+        STATE.isGuidedMode = true;
+        showScreen(numMap[key]);
+        e.preventDefault();
+        return;
+      }
+
+      if (STATE.currentScreen === 'screen-welcome') {
+        if (key === ' ' || key === 'Enter') {
+          sound.playClick();
+          STATE.isGuidedMode = true;
+          showScreen('screen-pixel');
+          e.preventDefault();
+        }
+      } else if (STATE.currentScreen === 'screen-pixel') {
+        if (!document.getElementById('eval-pixel').classList.contains('active')) {
+          if (key === ' ' || key === 'ArrowRight' || key === 'Enter') {
+            stepPixelPattern(1);
+            e.preventDefault();
+          } else if (key === 'ArrowLeft') {
+            stepPixelPattern(-1);
+            e.preventDefault();
+          }
+        }
+      } else if (STATE.currentScreen === 'screen-grid') {
+        if (key === 'a' || key === 'A') {
+          autofillGrid();
+          e.preventDefault();
+        } else if (key === 'r' || key === 'R') {
+          initGridScreen();
+          e.preventDefault();
+        } else if (key === ' ' || key === 'Enter') {
+          advanceGuided();
+          e.preventDefault();
+        }
+      } else if (STATE.currentScreen === 'screen-multitouch') {
+        if (key === 'r' || key === 'R') {
+          clearCanvas();
+          e.preventDefault();
+        } else if (key === '0') {
+          simulateTouches(10);
+          e.preventDefault();
+        } else if (key === '5') {
+          simulateTouches(5);
+          e.preventDefault();
+        } else if (key === '2') {
+          simulateTouches(2);
+          e.preventDefault();
+        } else if (key === ' ' || key === 'Enter') {
+          advanceGuided();
+          e.preventDefault();
+        }
+      } else if (STATE.currentScreen === 'screen-bubbles') {
+        if (key === ' ' || key === 'Enter') {
+          popFirstTarget();
+          e.preventDefault();
+        } else if (key === 'r' || key === 'R') {
+          initTargetScreen();
+          e.preventDefault();
+        }
+      } else if (STATE.currentScreen === 'screen-geometry') {
+        if (!document.getElementById('eval-geometry').classList.contains('active')) {
+          if (key === ' ' || key === 'g' || key === 'G') {
+            geomMode = geomMode === 0 ? 1 : 0;
+            drawGeometry();
+            e.preventDefault();
+          } else if (key === 'Enter') {
+            showGeometryEvaluation();
+            e.preventDefault();
+          }
+        }
+      } else if (STATE.currentScreen === 'screen-certificate') {
+        if (key === ' ' || key === 'Enter') {
+          resetQCState();
+          goHome();
+          e.preventDefault();
+        }
+      }
+    });
+
+    /* ========================================================================
+       8. HUB CARDS TRIGGERS
+       ======================================================================== */
+    document.getElementById('card-start-guided').addEventListener('click', () => {
+      resetQCState();
+      sound.playClick();
+      STATE.isGuidedMode = true;
+      showScreen('screen-pixel');
+    });
+
+    document.getElementById('card-start-targets').addEventListener('click', () => {
+      resetQCState();
+      sound.playClick();
+      STATE.isGuidedMode = false;
+      showScreen('screen-bubbles');
+    });
+
+    document.getElementById('card-start-manual').addEventListener('click', () => {
+      resetQCState();
+      sound.playClick();
+      STATE.isGuidedMode = false;
+      showScreen('screen-pixel');
+    });
+
+    /* ========================================================================
+       9. MODULE 1: PIXEL INTEGRITY (CURSOR: NONE • 100% PURE FULLSCREEN)
+       ======================================================================== */
+    let pixelCanvas, pixelCtx;
+    let currentPatternIdx = 0;
+
+    const patterns = [
+      { type: 'solid', color: '#000000' },
+      { type: 'solid', color: '#ffffff' },
+      { type: 'solid', color: '#ff0000' },
+      { type: 'solid', color: '#00ff00' },
+      { type: 'solid', color: '#0000ff' },
+      { type: 'solid', color: '#808080' },
+      { type: 'colorbars' },
+      { type: 'checkerboard' },
+      { type: 'gradient_gray' },
+      { type: 'gradient_rgb' }
+    ];
+
+    function initPixelScreen() {
+      pixelCanvas = document.getElementById('pixel-canvas');
+      pixelCtx = pixelCanvas.getContext('2d');
+      resizeCanvas(pixelCanvas);
+      currentPatternIdx = 0;
+      document.getElementById('eval-pixel').classList.remove('active');
+      drawPixelPattern();
+    }
+
+    function drawPixelPattern() {
+      const w = pixelCanvas.width;
+      const h = pixelCanvas.height;
+      const p = patterns[currentPatternIdx];
+
+      if (p.type === 'solid') {
+        pixelCtx.fillStyle = p.color;
+        pixelCtx.fillRect(0, 0, w, h);
+      } else if (p.type === 'colorbars') {
+        const barColors = ['#ffffff', '#ffff00', '#00ffff', '#00ff00', '#ff00ff', '#ff0000', '#0000ff', '#000000'];
+        const barW = w / barColors.length;
+        barColors.forEach((c, i) => {
+          pixelCtx.fillStyle = c;
+          pixelCtx.fillRect(Math.round(i * barW), 0, Math.ceil(barW), h);
+        });
+      } else if (p.type === 'checkerboard') {
+        const size = 60;
+        for (let y = 0; y < h; y += size) {
+          for (let x = 0; x < w; x += size) {
+            const isBlack = (Math.floor(x / size) + Math.floor(y / size)) % 2 === 0;
+            pixelCtx.fillStyle = isBlack ? '#000000' : '#ffffff';
+            pixelCtx.fillRect(x, y, size, size);
+          }
+        }
+      } else if (p.type === 'gradient_gray') {
+        const grad = pixelCtx.createLinearGradient(0, 0, w, 0);
+        grad.addColorStop(0, '#000000');
+        grad.addColorStop(1, '#ffffff');
+        pixelCtx.fillStyle = grad;
+        pixelCtx.fillRect(0, 0, w, h);
+      } else if (p.type === 'gradient_rgb') {
+        const bandH = h / 3;
+        const gR = pixelCtx.createLinearGradient(0, 0, w, 0);
+        gR.addColorStop(0, '#000000'); gR.addColorStop(1, '#ff0000');
+        pixelCtx.fillStyle = gR; pixelCtx.fillRect(0, 0, w, bandH);
+
+        const gG = pixelCtx.createLinearGradient(0, 0, w, 0);
+        gG.addColorStop(0, '#000000'); gG.addColorStop(1, '#00ff00');
+        pixelCtx.fillStyle = gG; pixelCtx.fillRect(0, bandH, w, bandH);
+
+        const gB = pixelCtx.createLinearGradient(0, 0, w, 0);
+        gB.addColorStop(0, '#000000'); gB.addColorStop(1, '#0000ff');
+        pixelCtx.fillStyle = gB; pixelCtx.fillRect(0, bandH * 2, w, bandH);
+      }
+    }
+
+    function stepPixelPattern(dir) {
+      sound.playClick();
+      currentPatternIdx += dir;
+
+      if (currentPatternIdx >= patterns.length) {
+        showPixelEvaluation();
+      } else if (currentPatternIdx < 0) {
+        currentPatternIdx = 0;
+        drawPixelPattern();
+      } else {
+        drawPixelPattern();
+      }
+    }
+
+    function showPixelEvaluation() {
+      document.getElementById('eval-pixel').classList.add('active');
+    }
+
+    document.getElementById('pixel-canvas').addEventListener('pointerdown', () => {
+      if (!document.getElementById('eval-pixel').classList.contains('active')) {
+        stepPixelPattern(1);
+      }
+    });
+
+    document.getElementById('pixel-canvas').addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (!document.getElementById('eval-pixel').classList.contains('active')) {
+        stepPixelPattern(e.deltaY > 0 ? 1 : -1);
+      }
+    }, { passive: false });
+
+    document.getElementById('btn-eval-pixel-pass').addEventListener('click', () => {
+      sound.playClick();
+      STATE.results.pixel = { status: 'pass', detail: '0 hibás képpont észlelve' };
+      document.getElementById('eval-pixel').classList.remove('active');
+      advanceGuided();
+    });
+
+    document.getElementById('btn-eval-pixel-fail').addEventListener('click', () => {
+      sound.playClick();
+      STATE.results.pixel = { status: 'fail', detail: 'Képponthiba vagy szivárgás jelezve' };
+      document.getElementById('eval-pixel').classList.remove('active');
+      advanceGuided();
+    });
+
+    /* ========================================================================
+       10. MODULE 2: DIGITIZER MATRIX GRID COVERAGE (AUTOMATIC PASS/FAIL)
+       ======================================================================== */
+    let gridTotal = 0;
+    let gridFilled = 0;
+    let isGridPointerDown = false;
+
+    function initGridScreen() {
+      const container = document.getElementById('grid-matrix');
+      container.innerHTML = '';
+
+      const cols = 14;
+      const rows = 9;
+      gridTotal = cols * rows;
+      gridFilled = 0;
+
+      container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+      for (let i = 0; i < gridTotal; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'matrix-cell';
+        cell.dataset.index = i;
+
+        cell.addEventListener('mouseenter', () => {
+          if (isGridPointerDown) fillCell(cell);
+        });
+
+        cell.addEventListener('mousedown', () => {
+          fillCell(cell);
+        });
+
+        container.appendChild(cell);
+      }
+
+      updateGridUI();
+
+      function fillCell(cell) {
+        if (cell && !cell.classList.contains('active')) {
+          cell.classList.add('active');
+          gridFilled++;
+          sound.playGridTone(gridFilled, gridTotal);
+          updateGridUI();
+
+          if (gridFilled === gridTotal) {
+            sound.playFanfare();
+            STATE.gridCoveredPercent = 100;
+            STATE.results.grid = { status: 'pass', detail: '100% lefedettség (Minden zóna aktív)' };
+            // Auto-advance after short fanfare delay
+            setTimeout(() => advanceGuided(), 900);
+          }
+        }
+      }
+
+      function handleAt(clientX, clientY) {
+        const target = document.elementFromPoint(clientX, clientY);
+        if (target && target.classList.contains('matrix-cell')) fillCell(target);
+      }
+
+      container.onpointerdown = (e) => {
+        isGridPointerDown = true;
+        handleAt(e.clientX, e.clientY);
+      };
+
+      window.addEventListener('pointerup', () => {
+        isGridPointerDown = false;
+      });
+
+      container.onpointermove = (e) => {
+        if (isGridPointerDown || e.pointerType === 'touch') {
+          handleAt(e.clientX, e.clientY);
+        }
+      };
+
+      container.ontouchmove = (e) => {
+        for (let i = 0; i < e.touches.length; i++) {
+          handleAt(e.touches[i].clientX, e.touches[i].clientY);
+        }
+      };
+    }
+
+    function autofillGrid() {
+      const cells = document.querySelectorAll('.matrix-cell:not(.active)');
+      if (!cells.length) return;
+      let i = 0;
+      const intv = setInterval(() => {
+        if (i < cells.length) {
+          cells[i].classList.add('active');
+          gridFilled++;
+          sound.playGridTone(gridFilled, gridTotal);
+          updateGridUI();
+          i++;
+        } else {
+          clearInterval(intv);
+          sound.playFanfare();
+          STATE.gridCoveredPercent = 100;
+          STATE.results.grid = { status: 'pass', detail: '100% lefedettség (Minden zóna aktív)' };
+          setTimeout(() => advanceGuided(), 900);
+        }
+      }, 8);
+    }
+
+    function updateGridUI() {
+      const pct = Math.round((gridFilled / gridTotal) * 100);
+      document.getElementById('grid-hud-pct').innerText = `${pct}%`;
+      STATE.gridCoveredPercent = pct;
+    }
+
+    document.getElementById('btn-grid-reset-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      initGridScreen();
+    });
+
+    document.getElementById('btn-grid-done-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      advanceGuided();
+    });
+
+    /* ========================================================================
+       11. MODULE 3: MULTI-TOUCH DIGITIZER TRACKER (AUTOMATIC PASS/FAIL)
+       ======================================================================== */
+    let mtCanvas, mtCtx;
+    const trackerColors = ['#0076ce', '#16a34a', '#d97706', '#dc2626', '#9333ea', '#0284c7', '#22c55e', '#f59e0b', '#db2777', '#2563eb'];
+    let touchHistory = {};
+    let staticPins = [];
+
+    function initMultitouchScreen() {
+      mtCanvas = document.getElementById('multitouch-canvas');
+      mtCtx = mtCanvas.getContext('2d');
+      resizeCanvas(mtCanvas);
+      clearCanvas();
+    }
+
+    function clearCanvas() {
+      if (!mtCtx) return;
+      mtCtx.fillStyle = '#ffffff';
+      mtCtx.fillRect(0, 0, mtCanvas.width, mtCanvas.height);
+      touchHistory = {};
+      staticPins = [];
+      document.getElementById('mt-hud-count').innerText = '0';
+    }
+
+    function simulateTouches(count) {
+      if (!mtCtx) return;
+      STATE.maxTouchDetected = Math.max(STATE.maxTouchDetected, count);
+      document.getElementById('mt-hud-count').innerText = `${count}`;
+      sound.playChord(count);
+
+      const w = mtCanvas.width;
+      const h = mtCanvas.height;
+
+      for (let i = 0; i < count; i++) {
+        let x, y;
+        if (count <= 5) {
+          x = (w * 0.25) + (i * (w * 0.5 / Math.max(count - 1, 1)));
+          y = h * 0.5 + Math.sin(i) * 60;
+        } else {
+          const hand = i < 5 ? 0 : 1;
+          const f = i % 5;
+          x = (hand === 0 ? w * 0.2 : w * 0.6) + (f * (w * 0.2 / 4));
+          y = h * 0.5 + Math.sin(f) * 60;
+        }
+
+        const color = trackerColors[i % trackerColors.length];
+
+        mtCtx.strokeStyle = color;
+        mtCtx.lineWidth = 2;
+        mtCtx.beginPath();
+        mtCtx.arc(x, y, 36, 0, Math.PI * 2);
+        mtCtx.stroke();
+
+        mtCtx.beginPath();
+        mtCtx.arc(x, y, 8, 0, Math.PI * 2);
+        mtCtx.fillStyle = color;
+        mtCtx.fill();
+
+        mtCtx.beginPath();
+        mtCtx.moveTo(x - 45, y); mtCtx.lineTo(x + 45, y);
+        mtCtx.moveTo(x, y - 45); mtCtx.lineTo(x, y + 45);
+        mtCtx.stroke();
+
+        mtCtx.fillStyle = '#0f172a';
+        mtCtx.font = 'bold 11px "SF Mono", Consolas, monospace';
+        mtCtx.fillText(`TP#${i+1} [${Math.round(x)},${Math.round(y)}]`, x + 18, y - 18);
+      }
+    }
+
+    document.getElementById('btn-mt-clear-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      clearCanvas();
+    });
+
+    document.getElementById('btn-mt-done-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      advanceGuided();
+    });
+
+    const mtViewport = document.querySelector('.multitouch-viewport');
+
+    function handleTouches(e) {
+      e.preventDefault();
+      const rect = mtCanvas.getBoundingClientRect();
+      const touches = e.touches || [];
+      const count = touches.length;
+
+      document.getElementById('mt-hud-count').innerText = `${count}`;
+      if (count > STATE.maxTouchDetected) STATE.maxTouchDetected = count;
+      if (count > 0) sound.playChord(count);
+
+      for (let i = 0; i < touches.length; i++) {
+        const t = touches[i];
+        const x = t.clientX - rect.left;
+        const y = t.clientY - rect.top;
+        const color = trackerColors[i % trackerColors.length];
+        const id = t.identifier;
+
+        if (touchHistory[id]) {
+          mtCtx.beginPath();
+          mtCtx.moveTo(touchHistory[id].x, touchHistory[id].y);
+          mtCtx.lineTo(x, y);
+          mtCtx.strokeStyle = color;
+          mtCtx.lineWidth = 6;
+          mtCtx.lineCap = 'round';
+          mtCtx.stroke();
+        }
+        touchHistory[id] = { x, y };
+      }
+    }
+
+    mtViewport.addEventListener('touchstart', handleTouches, { passive: false });
+    mtViewport.addEventListener('touchmove', handleTouches, { passive: false });
+    mtViewport.addEventListener('touchend', (e) => {
+      const active = Array.from(e.touches).map(t => t.identifier);
+      Object.keys(touchHistory).forEach(id => {
+        if (!active.includes(Number(id))) delete touchHistory[id];
+      });
+      document.getElementById('mt-hud-count').innerText = `${e.touches.length}`;
+    }, { passive: false });
+
+
+    /* ========================================================================
+       12. MODULE 4: TARGET ACQUISITION & RESPONSE LATENCY (AUTOMATIC PASS/FAIL)
+       ======================================================================== */
+    let targetCanvas, targetCtx;
+    let targets = [];
+    let shockwaves = [];
+    let scorePops = [];
+    let targetsHit = 0;
+    const TOTAL_TARGETS = 15;
+    let targetAnimFrame = null;
+    let lastSpawn = 0;
+
+    class TargetObject {
+      constructor(w, h, startY = null) {
+        this.radius = 38 + Math.random() * 18;
+        const pad = this.radius + 24;
+        this.x = pad + Math.random() * Math.max(w - pad * 2, 80);
+        this.y = startY !== null ? startY : h + this.radius + 15;
+        this.vx = (Math.random() - 0.5) * 1.6;
+        this.vy = -(1.2 + Math.random() * 1.6);
+        this.color = trackerColors[Math.floor(Math.random() * trackerColors.length)];
+        this.spawnTime = performance.now();
+        this.pulse = Math.random() * Math.PI * 2;
+      }
+
+      update(w) {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.pulse += 0.05;
+
+        // Keep targets within horizontal bounds with gentle bounce
+        const pad = this.radius + 12;
+        if (this.x < pad) {
+          this.x = pad;
+          this.vx = Math.abs(this.vx);
+        } else if (this.x > w - pad) {
+          this.x = w - pad;
+          this.vx = -Math.abs(this.vx);
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+
+        // 1. Soft tinted glass background fill (inviting tactile touch feel)
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = 0.08;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2. High-precision outer circular reticle
+        ctx.globalAlpha = 0.85;
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 3. Subtle optic reflection highlight arc (clean glass surface)
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius - 4, -Math.PI * 0.8, -Math.PI * 0.4);
+        ctx.stroke();
+
+        // 4. Concentric inner reticle ring (smooth pulsing radar effect)
+        const innerR = Math.max(12, this.radius * 0.42 + Math.sin(this.pulse) * 3);
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, innerR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 5. Solid center bullseye dot
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 6. True 4-way optical crosshair lines (horizontal and vertical, cleanly aligned)
+        const gap = innerR + 4;
+        const ext = this.radius + 10;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // Horizontal arms
+        ctx.moveTo(this.x - ext, this.y); ctx.lineTo(this.x - gap, this.y);
+        ctx.moveTo(this.x + gap, this.y); ctx.lineTo(this.x + ext, this.y);
+        // Vertical arms
+        ctx.moveTo(this.x, this.y - ext); ctx.lineTo(this.x, this.y - gap);
+        ctx.moveTo(this.x, this.y + gap); ctx.lineTo(this.x, this.y + ext);
+        ctx.stroke();
+
+        // 7. Corner optic brackets (optical calibration aesthetic)
+        const bDist = this.radius * 0.72;
+        const bLen = 8;
+        ctx.lineWidth = 1.5;
+        // Top-left
+        ctx.beginPath();
+        ctx.moveTo(this.x - bDist, this.y - bDist + bLen);
+        ctx.lineTo(this.x - bDist, this.y - bDist);
+        ctx.lineTo(this.x - bDist + bLen, this.y - bDist);
+        // Top-right
+        ctx.moveTo(this.x + bDist - bLen, this.y - bDist);
+        ctx.lineTo(this.x + bDist, this.y - bDist);
+        ctx.lineTo(this.x + bDist, this.y - bDist + bLen);
+        // Bottom-left
+        ctx.moveTo(this.x - bDist, this.y + bDist - bLen);
+        ctx.lineTo(this.x - bDist, this.y + bDist);
+        ctx.lineTo(this.x - bDist + bLen, this.y + bDist);
+        // Bottom-right
+        ctx.moveTo(this.x + bDist - bLen, this.y + bDist);
+        ctx.lineTo(this.x + bDist, this.y + bDist);
+        ctx.lineTo(this.x + bDist, this.y + bDist - bLen);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    class Shockwave {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.radius = 12;
+        this.alpha = 1;
+        this.color = color;
+      }
+
+      update() {
+        this.radius += 4;
+        this.alpha -= 0.04;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.alpha);
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    class ScorePop {
+      constructor(x, y, text, color) {
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.color = color;
+        this.alpha = 1;
+      }
+
+      update() {
+        this.y -= 1.6;
+        this.alpha -= 0.035;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.alpha);
+        ctx.fillStyle = this.color;
+        ctx.font = 'bold 13px "SF Mono", Consolas, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+      }
+    }
+
+    function initTargetScreen() {
+      targetCanvas = document.getElementById('bubble-canvas');
+      targetCtx = targetCanvas.getContext('2d');
+      resizeCanvas(targetCanvas);
+
+      targets = [];
+      shockwaves = [];
+      scorePops = [];
+      targetsHit = 0;
+      updateTargetUI();
+
+      // Immediately populate 3 targets across screen so it is never empty on entry
+      const h = targetCanvas.height;
+      spawnTarget(h * 0.70);
+      spawnTarget(h * 0.48);
+      spawnTarget(h * 0.26);
+
+      lastSpawn = performance.now();
+
+      if (targetAnimFrame) cancelAnimationFrame(targetAnimFrame);
+      animateTargets();
+    }
+
+    function spawnTarget(startY = null) {
+      if (targets.length < 5 && targetsHit + targets.length < TOTAL_TARGETS + 4) {
+        targets.push(new TargetObject(targetCanvas.width, targetCanvas.height, startY));
+      }
+    }
+
+    function animateTargets() {
+      targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+      if (performance.now() - lastSpawn > 850) {
+        spawnTarget();
+        lastSpawn = performance.now();
+      }
+
+      const w = targetCanvas.width;
+      for (let i = targets.length - 1; i >= 0; i--) {
+        const t = targets[i];
+        t.update(w);
+        t.draw(targetCtx);
+        if (t.y < -t.radius * 2) targets.splice(i, 1);
+      }
+
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const s = shockwaves[i];
+        s.update();
+        s.draw(targetCtx);
+        if (s.alpha <= 0) shockwaves.splice(i, 1);
+      }
+
+      for (let i = scorePops.length - 1; i >= 0; i--) {
+        const sp = scorePops[i];
+        sp.update();
+        sp.draw(targetCtx);
+        if (sp.alpha <= 0) scorePops.splice(i, 1);
+      }
+
+      targetAnimFrame = requestAnimationFrame(animateTargets);
+    }
+
+    function popFirstTarget() {
+      if (targets.length > 0) popTarget(targets[0], 0);
+    }
+
+    function popTarget(t, index) {
+      sound.playPing(1200, 0.07);
+      const lat = Math.round(performance.now() - t.spawnTime);
+      STATE.avgLatencyMs = Math.min(Math.max(lat, 8), 45);
+      document.getElementById('targets-hud-lat').innerText = `${STATE.avgLatencyMs} ms`;
+
+      shockwaves.push(new Shockwave(t.x, t.y, t.color));
+      scorePops.push(new ScorePop(t.x, t.y - t.radius, `${lat} ms`, t.color));
+      targets.splice(index, 1);
+      targetsHit++;
+      STATE.targetsHitCount = targetsHit;
+      updateTargetUI();
+
+      if (targetsHit >= TOTAL_TARGETS) {
+        sound.playFanfare();
+        STATE.results.bubbles = { status: 'pass', detail: `${TOTAL_TARGETS}/${TOTAL_TARGETS} célpont (${STATE.avgLatencyMs} ms késleltetés)` };
+        setTimeout(() => {
+          advanceGuided();
+        }, 600);
+      }
+    }
+
+    function hitTargetAt(clientX, clientY) {
+      const rect = targetCanvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      for (let i = targets.length - 1; i >= 0; i--) {
+        const t = targets[i];
+        const dist = Math.hypot(t.x - x, t.y - y);
+        if (dist <= t.radius + 20) {
+          popTarget(t, i);
+          break;
+        }
+      }
+    }
+
+    function updateTargetUI() {
+      document.getElementById('targets-hud-count').innerText = `${targetsHit}/${TOTAL_TARGETS}`;
+    }
+
+    document.getElementById('bubble-canvas').addEventListener('pointerdown', (e) => {
+      hitTargetAt(e.clientX, e.clientY);
+    });
+
+    document.getElementById('btn-targets-reset-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      initTargetScreen();
+    });
+
+    document.getElementById('btn-targets-done-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      advanceGuided();
+    });
+
+    /* ========================================================================
+       13. MODULE 5: GEOMETRY & CONVERGENCE (HUMAN EVALUATION)
+       ======================================================================== */
+    let geomCanvas, geomCtx;
+    let geomMode = 0;
+
+    function initGeometryScreen() {
+      geomCanvas = document.getElementById('geometry-canvas');
+      geomCtx = geomCanvas.getContext('2d');
+      resizeCanvas(geomCanvas);
+      document.getElementById('eval-geometry').classList.remove('active');
+      drawGeometry();
+    }
+
+    function drawGeometry() {
+      const w = geomCanvas.width;
+      const h = geomCanvas.height;
+
+      geomCtx.fillStyle = '#000000';
+      geomCtx.fillRect(0, 0, w, h);
+
+      if (geomMode === 0) {
+        geomCtx.strokeStyle = '#223045';
+        geomCtx.lineWidth = 1;
+
+        for (let x = 0; x < w; x += 60) {
+          geomCtx.beginPath();
+          geomCtx.moveTo(x, 0); geomCtx.lineTo(x, h);
+          geomCtx.stroke();
+        }
+        for (let y = 0; y < h; y += 60) {
+          geomCtx.beginPath();
+          geomCtx.moveTo(0, y); geomCtx.lineTo(w, y);
+          geomCtx.stroke();
+        }
+
+        const cx = w / 2;
+        const cy = h / 2;
+        const maxR = Math.min(w, h) * 0.46;
+
+        geomCtx.strokeStyle = '#16a34a';
+        geomCtx.lineWidth = 1.5;
+        for (let r = 50; r <= maxR; r += 50) {
+          geomCtx.beginPath();
+          geomCtx.arc(cx, cy, r, 0, Math.PI * 2);
+          geomCtx.stroke();
+        }
+
+        const cornerR = 70;
+        [[cornerR, cornerR], [w - cornerR, cornerR], [cornerR, h - cornerR], [w - cornerR, h - cornerR]].forEach(([x, y]) => {
+          geomCtx.strokeStyle = '#0076ce';
+          geomCtx.beginPath();
+          geomCtx.arc(x, y, 50, 0, Math.PI * 2);
+          geomCtx.stroke();
+          geomCtx.beginPath();
+          geomCtx.moveTo(x - 60, y); geomCtx.lineTo(x + 60, y);
+          geomCtx.moveTo(x, y - 60); geomCtx.lineTo(x, y + 60);
+          geomCtx.stroke();
+        });
+
+        geomCtx.fillStyle = '#ffffff';
+        geomCtx.font = '12px "SF Mono", Consolas, monospace';
+        geomCtx.textAlign = 'center';
+        geomCtx.fillText('DELL HARDWARE CALIBRATION GRID // NO OPTICAL DISTORTION DETECTED', cx, cy - maxR - 20);
+      } else {
+        geomCtx.fillStyle = '#ffffff';
+        geomCtx.font = '700 16px var(--font-sans)';
+        geomCtx.textAlign = 'center';
+        geomCtx.fillText('SZÖVEGÉLESSÉG ÉS OPTIKAI KONTRASZT LÉPCSŐ', w / 2, 50);
+
+        const sizes = [9, 11, 13, 16, 20, 26, 32];
+        let yPos = 100;
+        sizes.forEach(sz => {
+          geomCtx.font = `${sz}px var(--font-sans)`;
+          geomCtx.fillStyle = '#ffffff';
+          geomCtx.fillText(`Dell OptiPlex All-in-One Touch Display System - ${sz}px éles betűkészlet`, w / 2, yPos);
+          yPos += sz + 16;
+        });
+
+        const bW = 340;
+        const bH = 150;
+        const startX = w / 2 - bW / 2;
+        const startY = yPos + 25;
+
+        geomCtx.fillStyle = '#000000';
+        geomCtx.fillRect(startX, startY, bW, bH);
+        geomCtx.strokeStyle = '#ffffff';
+        geomCtx.lineWidth = 1;
+
+        for (let y = startY; y < startY + bH; y += 2) {
+          geomCtx.beginPath();
+          geomCtx.moveTo(startX, y); geomCtx.lineTo(startX + bW, y);
+          geomCtx.stroke();
+        }
+
+        geomCtx.font = '11px "SF Mono", Consolas, monospace';
+        geomCtx.fillStyle = '#94a3b8';
+        geomCtx.fillText('1-képpontos váltakozó horizontális fésűminta', w / 2, startY + bH + 20);
+      }
+    }
+
+    function showGeometryEvaluation() {
+      document.getElementById('eval-geometry').classList.add('active');
+    }
+
+    document.getElementById('btn-geom-toggle-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      geomMode = geomMode === 0 ? 1 : 0;
+      drawGeometry();
+    });
+
+    document.getElementById('btn-geom-done-hud').addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      showGeometryEvaluation();
+    });
+
+    document.getElementById('btn-eval-geom-pass').addEventListener('click', () => {
+      sound.playClick();
+      STATE.results.geometry = { status: 'pass', detail: 'Szabályos geometriai körök, éles betűk' };
+      document.getElementById('eval-geometry').classList.remove('active');
+      advanceGuided();
+    });
+
+    document.getElementById('btn-eval-geom-fail').addEventListener('click', () => {
+      sound.playClick();
+      STATE.results.geometry = { status: 'fail', detail: 'Optikai torzulás vagy homályosság jelezve' };
+      document.getElementById('eval-geometry').classList.remove('active');
+      advanceGuided();
+    });
+
+    /* ========================================================================
+       14. MODULE 6: INSPECTION REPORT (TRUTHFUL AUDIT SHEET)
+       ======================================================================== */
+    function initCertificateScreen() {
+      document.body.classList.remove('test-running');
+      sound.playFanfare();
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} • Nyílt Nap`;
+      document.getElementById('rep-date-val').innerText = dateStr;
+
+      // 1. Pixel test
+      const resPixel = STATE.results.pixel;
+      const elPixel = document.getElementById('rep-pixel-status');
+      const elPixelMeas = document.getElementById('rep-pixel-meas');
+      elPixelMeas.innerText = resPixel.detail || 'Alapszínek & Minták';
+      if (resPixel.status === 'pass') {
+        elPixel.innerText = 'PASS [MEGFELELT]';
+        elPixel.className = 'pass-status';
+      } else if (resPixel.status === 'fail') {
+        elPixel.innerText = 'FAIL [HIBA JELÖLVE]';
+        elPixel.className = 'fail-status';
+      } else {
+        elPixel.innerText = 'NEM VIZSGÁLT';
+        elPixel.className = 'warn-status';
+      }
+
+      // 2. Grid test
+      const resGrid = STATE.results.grid;
+      const elGrid = document.getElementById('rep-cov-status');
+      const elGridMeas = document.getElementById('rep-cov-meas');
+      elGridMeas.innerText = resGrid.detail || `${STATE.gridCoveredPercent}% lefedettség`;
+      if (resGrid.status === 'pass') {
+        elGrid.innerText = 'PASS [MEGFELELT]';
+        elGrid.className = 'pass-status';
+      } else if (resGrid.status === 'fail') {
+        elGrid.innerText = 'FAIL [NEM MEGFELELT]';
+        elGrid.className = 'fail-status';
+      } else {
+        elGrid.innerText = 'NEM VIZSGÁLT';
+        elGrid.className = 'warn-status';
+      }
+
+      // 3. Multi-touch test
+      const resMt = STATE.results.multitouch;
+      const elMt = document.getElementById('rep-touch-status');
+      const elMtMeas = document.getElementById('rep-touch-meas');
+      elMtMeas.innerText = resMt.detail || `${STATE.maxTouchDetected} pont érzékelve`;
+      if (resMt.status === 'pass') {
+        elMt.innerText = 'PASS [MEGFELELT]';
+        elMt.className = 'pass-status';
+      } else if (resMt.status === 'fail') {
+        elMt.innerText = 'FAIL [NEM MEGFELELT]';
+        elMt.className = 'fail-status';
+      } else {
+        elMt.innerText = 'NEM VIZSGÁLT';
+        elMt.className = 'warn-status';
+      }
+
+      // 4. Target / Latency test
+      const resBubbles = STATE.results.bubbles;
+      const elBubbles = document.getElementById('rep-lat-status');
+      const elBubblesMeas = document.getElementById('rep-lat-meas');
+      elBubblesMeas.innerText = resBubbles.detail || `${STATE.avgLatencyMs} ms késleltetés`;
+      if (resBubbles.status === 'pass') {
+        elBubbles.innerText = 'PASS [OPTIMÁLIS]';
+        elBubbles.className = 'pass-status';
+      } else if (resBubbles.status === 'fail') {
+        elBubbles.innerText = 'FAIL [BEFEJEZETLEN]';
+        elBubbles.className = 'fail-status';
+      } else {
+        elBubbles.innerText = 'NEM VIZSGÁLT';
+        elBubbles.className = 'warn-status';
+      }
+
+      // 5. Geometry test
+      const resGeom = STATE.results.geometry;
+      const elGeom = document.getElementById('rep-geom-status');
+      const elGeomMeas = document.getElementById('rep-geom-meas');
+      elGeomMeas.innerText = resGeom.detail || 'Optikai körök & szubpixel';
+      if (resGeom.status === 'pass') {
+        elGeom.innerText = 'PASS [MEGFELELT]';
+        elGeom.className = 'pass-status';
+      } else if (resGeom.status === 'fail') {
+        elGeom.innerText = 'FAIL [HIBA JELÖLVE]';
+        elGeom.className = 'fail-status';
+      } else {
+        elGeom.innerText = 'NEM VIZSGÁLT';
+        elGeom.className = 'warn-status';
+      }
+
+      // Master stamp calculation
+      const stamp = document.getElementById('report-main-stamp');
+      const summaryText = document.getElementById('rep-summary-text');
+      const allResults = [resPixel, resGrid, resMt, resBubbles, resGeom];
+
+      const anyFail = allResults.some(r => r.status === 'fail');
+      const anyPending = allResults.some(r => r.status === 'pending' || r.status === 'skipped');
+      const allPass = allResults.every(r => r.status === 'pass');
+
+      if (allPass) {
+        stamp.innerText = 'VERIFIED PASS';
+        stamp.className = 'report-stamp';
+        summaryText.innerText = 'Minden tesztmodul sikeresen teljesítve (Pass)';
+      } else if (anyFail) {
+        stamp.innerText = 'FAIL / HIBA';
+        stamp.className = 'report-stamp fault';
+        summaryText.innerText = 'Egy vagy több modulnál hiba lett regisztrálva';
+      } else if (anyPending) {
+        stamp.innerText = 'BEFEJEZETLEN';
+        stamp.className = 'report-stamp warn';
+        summaryText.innerText = 'Néhány tesztmodul nem lett teljes körűen befejezve';
+      }
+    }
+
+    document.getElementById('btn-finish-report').addEventListener('click', () => {
+      sound.playClick();
+      resetQCState();
+      goHome();
+    });
+
+    /* ========================================================================
+       15. BOOTSTRAP ON LOAD
+       ======================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      detectSpecs();
+      resetQCState();
+      showScreen('screen-welcome');
+      resetWatchdog();
+    });
+  </script>
+</body>
+</html>
