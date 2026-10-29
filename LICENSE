@@ -1,0 +1,46 @@
+SZABAD FELHASZNÁLÁSÚ NYÍLT LICENC (BSD Zero Clause License / 0BSD)
+==================================================================
+
+Rövid összefoglaló (Magyar nyelven):
+------------------------------------
+Ez a szoftver ("Nyílt Napi Érintőképernyő Kioszk") bárki számára — beleértve
+magánszemélyeket, oktatási intézményeket, önkormányzatokat és ÜZLETI VÁLLALATOKAT
+(cégeket) is — teljesen ingyenesen és korlátozás nélkül felhasználható!
+
+Jogodban áll a szoftvert bármilyen célra (céges nyílt napokon, rendezvényeken,
+kereskedelmi vagy belső környezetben):
+  - használni és futtatni bármennyi eszközön,
+  - lemásolni és továbbadni,
+  - átírni, bővíteni, saját cégnévvel és arculattal ellátni,
+  - közzétenni vagy terjeszteni,
+mindenféle regisztrációs kötelezettség, jogdíj vagy szerzői jogi felirat
+megtartásának kényszere nélkül. A szoftver "ahogy van" (garancia nélkül) kerül
+átadásra.
+
+Hivatalos magyar nyelvű záradék (0BSD):
+---------------------------------------
+Engedélyt adunk bárkinek a jelen szoftver és a hozzá tartozó dokumentációs
+fájlok ("Szoftver") bármilyen célú felhasználására, másolására, módosítására és
+terjesztésére, díjmentesen vagy díj ellenében, feltételek és korlátozások nélkül.
+
+A SZOFTVERT "AHOGY VAN" BOCSÁTJUK RENDELKEZÉSRE, MINDENFÉLE KIFEJEZETT VAGY
+HALLGATÓLAGOS GARANCIA NÉLKÜL, BELEÉRTVE — DE NEM KIZÁRÓLAGOSAN — AZ ELADHATÓSÁGRA,
+AZ ADOTT CÉLRA VALÓ ALKALMASSÁGRA ÉS A JOGTISZTASÁGRA VONATKOZÓ GARANCIÁKAT. A
+SZERZŐK VAGY JOGTULAJDONOSOK SEMMILYEN ESETBEN SEM TARTHATÓK FELELŐSNEK SEMMILYEN
+KÖZVETLEN, KÖZVETETT VAGY KÖVETKEZMÉNYES KÁRÉRT, AMELY A SZOFTVER HASZNÁLATÁBÓL
+VAGY AZZAL ÖSSZEFÜGGÉSBEN MERÜL FEL.
+
+------------------------------------------------------------------
+BSD Zero Clause License (SPDX-License-Identifier: 0BSD)
+------------------------------------------------------------------
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.

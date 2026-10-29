@@ -126,6 +126,33 @@ class SoundEngine {
     });
   }
 
+  /** Rövid, vidám sikeres részfeladat-csilingelés (pl. helyes csillagszámoláskor) */
+  playSuccess() {
+    if (!this.canPlay()) return;
+    this.init();
+    if (!this.ctx) return;
+
+    const notes = [587.33, 783.99, 1046.5];
+    notes.forEach((freq, idx) => {
+      if (!this.ctx) return;
+      const start = this.ctx.currentTime + idx * 0.065;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, start);
+
+      gain.gain.setValueAtTime(0.15, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(start);
+      osc.stop(start + 0.16);
+    });
+  }
+
   /** Célpont eltalálásakor megszólaló arkád pukkanás/csengés */
   playTargetHit(comboIndex = 0) {
     if (!this.canPlay()) return;

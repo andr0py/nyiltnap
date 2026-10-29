@@ -5,10 +5,10 @@
 A **Nyílt Napi Érintőképernyő Kioszk** egy 100%-ban offline, teljesen névtelen (GDPR-konform), egyképernyős (görgetésmentes) webalkalmazás céges nyílt napokra és érintőterminálokra. Az alkalmazás a klasszikus érintőpanel- és kijelződiagnosztikai teszteket öt vidám, mesekönyvi pixel-art stílusú gyerekjátékká alakítja át:
 
 - **Károly, a Kaméleon Bújócska** — Képpont- és színhomogenitás ellenőrzés 5 tiszta alapszínen és 2 szemkímélő mintán, mérhető keresési idővel.
-- **Pixel-Kifestő Meglepetés (Rácsteszt)** — 24×14-es teljes képernyős érintőmátrix ujj elől kitérő menüsávval, amelyben 12 véletlenszerűen váltakozó, árnyalt pixel-art alakzat (*Cirmos Kiscica, Vidám Kiskutya, Barátságos Dínó, Színes Pillangó, Csillagközi Űrrakéta, Álmos Kisbagoly, Mosolygós Béka, Édes Piros Eper, Vitorlás Kishajó, Pöttyös Gombaházikó, Szivárvány és Felhők, Mosolygós Napocska*) rajzolódik ki.
+- **Pixel-Kifestő Meglepetés (Rácsteszt)** — 24×14-es teljes képernyős érintőmátrix ujj elől kitérő menüsávval, 12 véletlenszerűen váltakozó árnyalt pixel-art alakzattal, és 100%-nál egy 4 másodperces vizuális visszaszámláló sávval, hogy a gyerekek zavartalanul megcsodálhassák a kész képet.
 - **Tűzijáték Mód (Multi-Touch)** — Akár 10 egyidejű ujj érzékelése látványos pixel-csillag robbanásokkal.
 - **30 Másodperces Célpontvadászat** — Reakcióidő (ms) és találati pontosság mérése nagy arkád visszaszámlálóval.
-- **Képélesség és Formák** — Egyszerűsített, gyerekbarát geometriai és olvashatósági ellenőrzés.
+- **Képélesség és Formák (Csillagszámolóval)** — Kétlépéses vizuális próba: először a sarkokban, középen és az oldalsó formákban ragyogó arany csillagok megszámolása (5–8 db), majd a kép élességének visszaigazolása.
 - **Névtelen Mester Oklevél & Konfetti** — Egyképernyős ünnepi értékelő felület személyes adatok bekérése nélkül.
 
 ### Gyors Konfiguráció (`KIOSK_CONFIG` a `js/main.js` tetején)
@@ -35,8 +35,9 @@ A projekt tiszta, felelősségi körök szerint szétválasztott ES-modulokra é
 │       ├── gridTest.js         # 24x14-es Pixel-Kifestő 12 árnyalt figurával + kitérő menüvel
 │       ├── multiTouchTest.js   # Tűzijátékos többujjas érintőteszt
 │       ├── targetTest.js       # 30 másodperces célpontvadászat (időzítővel és ms átlaggal)
-│       ├── sharpnessTest.js    # Gyerekbarát képélesség és geometria ellenőrzés
+│       ├── sharpnessTest.js    # Csillagszámolós képélesség és geometria ellenőrzés
 │       └── report.js           # Névtelen oklevél generáló és Canvas konfetti animáció
+├── LICENSE                     # BSD Zero Clause (0BSD) korlátozásmentes szabad licenc
 └── README.md                   # Fejlesztői és üzemeltetési dokumentáció
 ```
 
@@ -187,7 +188,15 @@ chrome.exe --kiosk --allow-file-access-from-files "C:\kiosk\index.html"
 chromium-browser --kiosk --allow-file-access-from-files /opt/kiosk/index.html
 ```
 
-### Rejtett Személyzeti (Animátor) Funkciók
+### Rejtett Személyzeti (Animátor) Funkciók és Kioszk Védelem
 - **3 gyors koppintás (Triple-Tap) a bal felső emblémára / címre**: Azonnali nullázás és visszatérés a Kezdőlapra (aktív játék közben a bal felső sarok-emblémán is működik).
+- **Átkattintás-védett Képernyővédő ébresztés**: A képernyővédő (és a tétlenségi ablak) megérintése capture-fázisú eseménypajzzsal elnyeli az ujjfelemelésből származó kattintást, így mindig biztonságosan a Kezdőlapot fedi fel anélkül, hogy véletlenül elindítana egy alatta lévő játékot.
 - **`Esc` billentyű**: Azonnali visszalépés a Kezdőlapra.
 - **`M` billentyű** *(csak ha `enableAudio: true`)*: Hang némítása / visszakapcsolása.
+
+---
+
+## 6. Licenc és Korlátozásmentes Felhasználás (0BSD)
+
+Ez a szoftver a **BSD Zero Clause License (`0BSD`)** alatt áll (lásd a `LICENSE` fájlt).
+Bárki — beleértve **magánszemélyeket, iskolákat, intézményeket és üzleti vállalatokat (cégeket)** is — teljesen szabadon, díjmentesen és korlátozás nélkül felhasználhatja, módosíthatja, átmárkázhatja és terjesztheti saját nyílt napjain vagy egyéb rendezvényein, jogi megkötések nélkül.

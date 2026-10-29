@@ -1,9 +1,10 @@
 /* ==========================================================================
    ALKALMAZÁSMAG ÉS ÁLLAPOTKEZELŐ ROUTER (js/main.js)
+   SPDX-License-Identifier: 0BSD (Korlátozásmentesen szabadon felhasználható)
    - Központi Kioszk Konfiguráció (Cégnév + Hang engedélyezése/tiltása)
    - Moduláris teszt-regiszter és STATE.guidedScreens útválasztó
    - Rejtett Tripla-Koppintás (Triple-Tap) Animátor Reset
-   - Tétlenségi Watchdog (60 mp visszaszámláló) és Semleges Képernyővédő
+   - Tétlenségi Watchdog + Átkattintás-védett (Capture-Shield) Képernyővédő
    - Globális koppintási csillag-effektek
    ========================================================================== */
 
@@ -398,6 +399,20 @@ let ssCtx = null;
 let ssAnimFrame = null;
 let isScreensaverActive = false;
 
+/**
+ * Ébresztési kattintás-pajzs (Capture-Phase Wake Shield):
+ * Megakadályozza, hogy a képernyővédő (vagy tétlenségi ablak) felébresztésére
+ * szolgáló érintés ujjfelemeléskor (pointerup / touchend / szintetikus click)
+ * megnyomjon egy alatta lévő játékkártyát vagy menügombot!
+ */
+let wakingPointerActive = false;
+let wakeGuardUntil = 0;
+
+function isIdleModalActive() {
+  const modal = document.getElementById('modal-idle');
+  return Boolean(modal && modal.classList.contains('active'));
+}
+
 const ssCard = {
   x: 120,
   y: 120,
@@ -699,7 +714,96 @@ function bindGlobalControls() {
     trigger.addEventListener('pointerdown', registerTripleTapCandidate);
   });
 
-  // Csillag-effekt gomb- és kártyaérintéskor
+  // CAPTURE-FÁZISÚ ÉBRESZTÉSI VÉDELEM:
+  // Ha a képernyővédő vagy a tétlenségi ablak aktív, az első érintés kizárólag
+  // felébreszti a kijelzőt (és megmutatja a Kezdőlapot), de elnyeli a teljes
+  // pointerdown -> pointerup -> click sorozatot, így SOHA nem nyit meg véletlenül játékot!
+  window.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (isScreensaverActive) {
+        wakingPointerActive = true;
+        wakeGuardUntil = performance.now() + 800;
+        spawnTapStars(e.clientX, e.clientY);
+        if (STATE.currentScreen !== 'screen-welcome') {
+          showScreen('screen-welcome');
+        }
+        resetWatchdog();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
+
+      if (isIdleModalActive()) {
+        wakingPointerActive = true;
+        wakeGuardUntil = performance.now() + 800;
+        spawnTapStars(e.clientX, e.clientY);
+        sound.playClick();
+        resetWatchdog();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
+
+      // Új, normál érintés aktív felületen: töröljük a korábbi ébresztési zárat
+      wakingPointerActive = false;
+      wakeGuardUntil = 0;
+    },
+    true
+  );
+
+  window.addEventListener(
+    'touchstart',
+    (e) => {
+      if (isScreensaverActive || isIdleModalActive() || wakingPointerActive) {
+        if (isScreensaverActive || isIdleModalActive()) {
+          wakingPointerActive = true;
+          wakeGuardUntil = performance.now() + 800;
+          resetWatchdog();
+        }
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    },
+    { capture: true, passive: false }
+  );
+
+  const releaseWakePointer = (e) => {
+    if (wakingPointerActive) {
+      wakingPointerActive = false;
+      wakeGuardUntil = performance.now() + 450;
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    } else if (performance.now() < wakeGuardUntil) {
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+  };
+
+  window.addEventListener('pointerup', releaseWakePointer, true);
+  window.addEventListener('pointercancel', releaseWakePointer, true);
+  window.addEventListener('touchend', releaseWakePointer, { capture: true, passive: false });
+  window.addEventListener('mouseup', releaseWakePointer, true);
+
+  window.addEventListener(
+    'click',
+    (e) => {
+      if (wakingPointerActive || performance.now() < wakeGuardUntil) {
+        wakeGuardUntil = 0;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    },
+    true
+  );
+
+  // Csillag-effekt gomb- és kártyaérintéskor (normál, nem ébresztő érintéseknél)
   document.addEventListener('pointerdown', (e) => {
     const target = /** @type {HTMLElement | null} */ (e.target);
     if (target && target.closest('.btn-storybook, .game-card, .nav-text-btn')) {
@@ -708,30 +812,12 @@ function bindGlobalControls() {
     resetWatchdog();
   });
 
-  // Inaktivitási modal és képernyővédő felébresztése
+  // Inaktivitási modal gomb tartalék eseménykezelő
   const idleResumeBtn = document.getElementById('btn-idle-resume');
   if (idleResumeBtn) {
     idleResumeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       sound.playClick();
-      resetWatchdog();
-    });
-  }
-
-  const idleModal = document.getElementById('modal-idle');
-  if (idleModal) {
-    idleModal.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      sound.playClick();
-      resetWatchdog();
-    });
-  }
-
-  const ssOverlay = document.getElementById('screensaver-overlay');
-  if (ssOverlay) {
-    ssOverlay.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
       resetWatchdog();
     });
   }
@@ -748,6 +834,11 @@ function bindGlobalControls() {
 
   // Fejlesztői billentyűzet-gyorsgombok otthoni teszteléshez
   window.addEventListener('keydown', (e) => {
+    if (isScreensaverActive || isIdleModalActive()) {
+      resetWatchdog();
+      e.preventDefault();
+      return;
+    }
     resetWatchdog();
     const k = e.key;
     if (k === 'Escape') {
@@ -762,8 +853,12 @@ function bindGlobalControls() {
     } else if (STATE.currentScreen === 'screen-target' && k === ' ') {
       targetTest.popFirstTargetForTest();
       e.preventDefault();
-    } else if (STATE.currentScreen === 'screen-sharpness' && (k === 'g' || k === 'G')) {
-      sharpnessTest.toggleSharpnessPattern();
+    } else if (STATE.currentScreen === 'screen-sharpness') {
+      if (k === 'g' || k === 'G') {
+        sharpnessTest.toggleSharpnessPattern();
+      } else if (k === '4' || k === '5' || k === '6' || k === '7') {
+        sharpnessTest.submitStarGuess(Number(k));
+      }
     }
   });
 }

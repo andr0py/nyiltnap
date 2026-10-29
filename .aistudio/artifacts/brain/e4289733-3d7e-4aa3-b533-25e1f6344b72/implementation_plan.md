@@ -1,82 +1,100 @@
-# Nyílt Napi Gyerekbarát Érintőképernyő Kioszk — Látvány- és Kényelmi Továbbfejlesztési Terv
+# Nyílt Napi Gyerekbarát Érintőképernyő Kioszk — Érintésbiztonsági, Játékélmény- és Licencfejlesztési Terv
 
-A visszajelzések alapján finomhangoljuk a játékélményt és a grafikát: nagyobb felbontású, sokkal szebb és változatosabb (12-féle árnyalt) pixel-art alakzatokat kap a Pixel-Kifestő, a lebegő felső vezérlősáv automatikusan kitér az ujj elől színezés közben, Károly bújócskája részletgazdagabb karaktergrafikát és két nyugodt, szemkímélő mintát kap a vibráló sakktábla helyett, továbbá minden felületen javítjuk a *„Képélesség és Formák”* elírást.
+Megszüntetjük a képernyővédő felébresztésekor jelentkező véletlen gombmegnyomási hibát, 4 másodperces vizuális visszaszámláló sávot adunk a Pixel-Kifestő végéhez az elkészült kép zavartalan megcsodálásához, játékos csillagszámoló feladattal bővítjük a Képélesség és Formák tesztet, valamint korlátozásmentes, cégek számára is teljesen szabadon felhasználható licencet vezetünk be a dokumentációban és a kezdőlapon.
 
-## Felhasználói Jóváhagyás és Kiemelt Változtatások
+## Felhasználói Jóváhagyás és Megerősített Döntések
 
 > [!IMPORTANT]
-> A jelenlegi frissítés az alábbi négy területet érinti a korábban véglegesített görgetésmentes (100vh) és alapból néma kioszk működés megtartásával:
+> Az egyeztetett válaszok alapján az alábbi négy fejlesztést valósítjuk meg a meglévő görgetésmentes (`100vh`), 100%-ban offline és alapértelmezetten néma kioszk működés megtartásával:
 
-- **12 részletgazdagabb, árnyalt Pixel-Kifestő alakzat**: A korábbi durva (16×10-es) felbontást finomabb **24×14-es pixel-rácsra** emeljük bővített színpalettával és kényelmes ecsetszélességgel, így sokkal formásabb, árnyaltabb mesekönyvi figurák (*Cica, Kiskutya, Barátságos Dínó, Pillangó, Űrrakéta, Kisbagoly, Vidám Béka, Piros Eper, Vitorlás Hajó, Gombaházikó, Szivárványos Felhő, Mosolygós Napocska*) rajzolódnak ki.
-- **Ujj elől automatikusan kitérő menüsáv**: Amikor a játékos ujja színezés (vagy játék) közben megközelíti a felső vezérlősávot, a menü finom animációval átköltözik a képernyő aljára — ha pedig lent színez a felhasználó, visszalép felülre, így egyetlen pillanatra sem takarja ki a munkaterületet.
-- **Kidolgozottabb Károly, a Kaméleon teszt szemkímélő mintákkal**: A szemet fárasztó sakktábla kikerül; az 5 tiszta alapszín (piros, zöld, kék, fehér, fekete) mellé **2 nyugodt, szemkímélő minta** (lágy pasztell színátmenet és nagy léptékű, szelíd pasztell pöttyös/hullámos háttér) érkezik. Maga Károly is részletesebb rajzolatot, kíváncsian nézelődő/pislogó szemet, apró kapaszkodó lábakat, faág-sziluettet és látványosabb nyelv-csillagkapó örömanimációt kap.
-- **Helyesírási javítás mindenhol**: A *„Képrélesség”* elírást minden feliraton, kártyán, oklevél-soron és dokumentációban **„Képélesség”**-re (*„Képélesség és Formák”* / *„Képélesség és Geometria”*) javítjuk.
+- **Képernyővédő felébresztés védelme (átkattintás-mentes ébresztés)**: A képernyővédő (és a tétlenségi figyelmeztető ablak) megérintése kizárólag felébreszti a kijelzőt és megmutatja a Kezdőlapot — az ébresztő érintés soha többé nem nyit meg alatta lévő játékkártyát vagy menügombot.
+- **Pixel-Kifestő 4 másodperces vizuális visszaszámláló sáv**: 100%-os színezéskor a kép nem homályosodik el azonnal: a rácsvonalak kisimulnak, a teljes pixel-illusztráció szabadon látható marad, alul pedig megjelenik egy 4 másodperces animált visszaszámláló sáv azonnali *„Tovább most!”* és *„Új titkos kép”* gombokkal.
+- **Képélesség és Formák — Csillagszámoló extra feladat**: A szemrevételezés két lépésből áll: először a gyerekek megszámolják a képernyő sarkaiban és közepén ragyogó arany csillagokat és kiválasztják a helyes számot a nagy számválasztó gombokkal, majd visszajeleznek a formák és betűk élességéről.
+- **Korlátozásmentes szabad licenc (0BSD / Unlicense jellegű)**: Teljesen szabadon — magánszemélyek és cégek által is — korlátozás, regisztráció és jogi kötöttség nélkül használható, módosítható és terjeszthető licenc kerül a projekt licencdokumentumába, a leírásba, valamint apró, diszkrét feliratként a kezdőlap alsó sávjába.
 
 ---
 
 ## 1. Áttekintés és Alapkoncepció
 
-- **Mit nyújt a fejlesztés**: Esztétikusabb, valódi gyerekkönyv-minőségű pixel-illusztrációkat és zavartalan teljes képernyős érintésélményt, ahol sem a lebegő gombok nem állnak az ujj útjába, sem erős optikai vibráció nem fárasztja a látogatók szemét.
-- **Fő érték**: A finomabb pixelrács és az árnyalt színek valódi „aha-élményt” adnak a gyerekeknek, amikor felismerik a kirajzolódó cicát, dínót vagy űrrakétát, miközben az ujj-érzékeny kitérő menüsáv garantálja, hogy a kijelző felső és alsó pereme is akadálytalanul bejárható legyen.
+- **Mit nyújt a fejlesztés**: Üzembiztosabb kioszk-interakciót (a látogatók mindig a Kezdőlapra érkeznek a képernyővédő megérintésekor), valódi sikerélményt a kifestett pixel-alkotások megtekintéséhez tétlen bizonytalanság nélkül, aktív figyelmet igénylő vizuális mini-játékot a képélesség-tesztben, valamint egyértelmű, minden korlátozástól mentes jogi keretet céges nyílt napokhoz.
+- **Célközönség**: Nyílt napra érkező óvodás és kisiskolás gyerekek, szülők, valamint a szoftvert saját rendezvényükön szabadon bevető vállalatok és animátorok.
+- **Fő érték**: Minden interakció kiszámítható, gyerekbarát és önmagát magyarázza, miközben a kijelző teljes felületének és élességének ellenőrzése valódi játék marad.
 
 ---
 
 ## 2. Felhasználói Élmény és Vizuális Dizájn
 
-### 1. Részletgazdag Pixel-Kifestő (24×14-es rács, 12 új figura)
-- **Finomabb arányok + gyors színezhetőség**: A `24 × 14` (336 cellás) mátrix 16:9 / 16:10 arányú kijelzőkön szabályos négyzetekből áll, amelyeken már szépen kirajzolódnak a fülek, szemek, szárnyak és fény-árnyék részletek. Hogy a kisebb gyerekeknek se legyen fárasztó kiszínezni 336 kockát, az ujjhúzás finom **kiterjesztett ecsettel** (az érintett cella és közvetlen szomszédsága mentén) fest, így gyors, élvezetes mozdulatokkal tárul fel a kép, beleértve a sarkokat is.
-- **12 véletlenszerűen váltakozó, árnyalt mesekönyvi sablon**:
-  1. *Kíváncsi Cica* (narancs-krém cirmos kiscica rózsaszín orral)
-  2. *Vidám Kiskutya* (barna-vajfehér kutyus lógó fülekkel)
-  3. *Barátságos Zöld Dínó* (mosolygós kis dinoszaurusz háti taréjjal)
-  4. *Színes Pillangó* (szimmetrikus, mintás szárnyú lepke)
-  5. *Csillagközi Űrrakéta* (piros-ezüstkék rakéta lángcsóvával és csillagokkal)
-  6. *Álmos Kisbagoly* (faágon ülő nagy szemű bagoly)
-  7. *Mosolygós Béka* (tavirózsán csücsülő zöld békaporonty)
-  8. *Édes Piros Eper* (árnyalt piros szamóca zöld levélkoronával)
-  9. *Vitorlás Kishajó* (kétszínű dagadó vitorlákkal és hullámokkal)
-  10. *Pöttyös Gombaházikó* (piros kalapos meseházikó világító ablakkal)
-  11. *Szivárvány és Felhő* (lágy ívű szivárvány pufi felhőkkel)
-  12. *Mosolygós Napocska* (árnyalt napsugarak zöld dombok felett)
+### Kulcsfolyamatok
 
-### 2. Intelligensen Kitérő (Auto-Dodge) Felső Menüsáv
-- **Működési elv**: A Pixel-Kifestőben (és az interaktív rajzoló felületeken) a rendszer figyeli az aktív ujj / mutató függőleges pozícióját:
-  - Alaphelyzetben a vezérlősáv **felül** helyezkedik el.
-  - Amint a színező ujj belép a felső sáv közelébe (a képernyő felső ~22%-ába), a vezérlősáv egy 180 ms-os sima `transform` csúszással **leugrik a képernyő aljára** (és átlátszó érintés-átengedő módban sem blokkolja a húzást), amíg a felhasználó a felső régióban színez.
-  - Amikor az ujj a képernyő alsó ~22%-ába ér, a sáv ugyanígy visszaköltözik felülre — így mindig pontosan az ellenkező oldalon pihen, mint ahol a gyerek éppen dolgozik!
+1. **Átkattintás-mentes ébresztés a Képernyővédőről**:
+   - Amikor a képernyővédő aktív, a látogató bárhol megérintheti a kijelzőt (akár ott is, ahol a Kezdőlapon kártya vagy fejlécgomb található).
+   - Az érintés elnyeli a teljes mutató- és kattintási eseménysorozatot (`pointerdown` → `pointerup` → `click`), felfedi a Kezdőlapot, és egy rövid védőidőablakig megakadályozza a véletlen továbbkattintást.
+2. **Pixel-Kifestő 4 másodperces csodáló fázis**:
+   - Amint az utolsó fehér kocka is kiszíneződik (100%), a sötét rácsrések finoman összezárulnak, így a pixel-figura tiszta mesekönyvi képként tündököl teljes képernyőn.
+   - A képet nem takarja el elmosódott ablak: a képernyő alján felcsúszik egy keskeny, átlátható ünnepi sáv a figura nevével (*„Előbújt: Cirmos Kiscica!”*), egy folyamatosan csökkenő **4 másodperces vizuális folyamatjelző csíkkal** és számlálóval, valamint két nagy (`>= 60×60px`) gombbal (*„Új titkos kép”* és *„Tovább most!”*).
+   - Így a gyerekeknek van idejük megnézni a művüket, a mozgó csík miatt pontosan látják, mi történik, de ha nem szeretnének várni, egyetlen érintéssel azonnal továbbléphetnek. A 4 másodperc leteltekor megjelenik az összesítő kártya.
+3. **Képélesség és Formák — 2 lépéses csillagszámoló próba**:
+   - **1. lépés (Számolás)**: A vásznon a sarkokban lévő körökben, a középső gyűrűben és az oldalsó alakzatoknál véletlenszerűen **5, 6, 7 vagy 8 darab** éles kontúrú arany csillag jelenik meg. Az alsó kérdező sávban a feladat: *„1/2. Számold meg, hány arany csillag ragyog a képen!”*, mellette 4 darab vaskos (`>= 60×60px`) számválasztó gombbal (pl. `5`, `6`, `7`, `8`).
+   - Téves tipp esetén a csillagok barátságosan megvillannak a vásznon (*„Nézz körül a sarkokban is, és próbáld újra!”*), helyes válasz esetén pedig ünnepi csillogással átvált a sáv a **2. lépésre**: *„2/2. Ügyes vagy! Minden forma és betű szép éles?”* (*„Igen, éles!”* / *„Nem, homályos!”*).
+   - A *„Másik háttér”* gomb nemcsak világos és esti hátteret vált, hanem igény szerint friss csillag-elrendezést is rajzol.
+4. **Diszkrét szabad licenc jelölés a Kezdőlapon**:
+   - A Kezdőlap alsó sávjában — kapszula vagy keret nélküli, csendes tipográfiával, a görgetésmentes `100vh` arányokat teljesen megőrizve — megjelenik egy rövid tájékoztató sor: *„Szabadon felhasználható nyílt forráskód (0BSD) · Cégek és intézmények számára is korlátozásmentes”*.
 
-### 3. Kidolgozottabb Károly, a Kaméleon Játék (7 Pálya, Szemkímélő Minták)
-- **Szemkímélő háttérkészlet (vibráló sakktábla nélkül)**:
-  - Megmarad az 5 tiszta diagnosztikai alapszín (*Élénkpiros, Fűzöld, Égkék, Hófehér, Éjfekete*), amelyek elengedhetetlenek a képpont-ellenőrzéshez.
-  - Melléjük **2 nyugodt, szembarát minta** kerül:
-    1. *Lágy Napszak-Színátmenet (Gradiens)*: Finom barack-arany-égkék átmenet, amely egyáltalán nem vibrál, ugyanakkor kiválóan teszteli a kijelző színátmenet-simaságát.
-    2. *Szelíd Pasztell Pöttyös / Hullámos Minta*: Nagy méretű, alacsony kontrasztkülönbségű, lágy mentazöld alapon finom világoszöld körök/levelek — kellemes a szemnek, mégis játékos búvóhely Károlynak.
-- **Részletesebb Károly karakter és visszajelzés**:
-  - Károly kidolgozottabb kaméleon-sziluettet kap (jellegzetes sisakszerű fejbúb, hátgerinc-taréj, finom oldalsó csíkok/pöttyök, kis kétujjas kaméleon-mancsok egy apró faág-darabon, többszörösen feltekeredő farok és forgó, kíváncsian körbenéző-pislogó szem).
-  - Ha Károly mintás vagy színátmenetes háttéren ül, a teste pontosan átveszi az alatta lévő pozíció helyi színét/mintázatát, miközben a gyerekbarát körvonala továbbra is jól kivehető marad.
-  - Megtaláláskor Károly vidáman kinyújtja a nyelvét, elkap egy csillagot, szivárványos-smaragdzöldre vált, a felső számláló mellett pedig vizuális pálya-jelző pöttyök is mutatják az előrehaladást.
+### Vizuális Identitás és Térbeli Matematika
+
+- **Színpaletta (60-30-10 egyensúly)**:
+  - *60% Domináns felület*: Meleg mesekönyvi krémfehér (`--bg-storybook: #fffdf5`).
+  - *30% Strukturális kártyák és sávok*: Tiszta fehér (`--surface-card: #ffffff`), határozott sötétkék képregényes kontúrral (`--ink-outline: #1e293b`, `3px`).
+  - *10% Akció- és visszajelző színek*: Napsárga (`--accent-amber: #f59e0b`) a csillagokhoz és a 4 másodperces visszaszámláló sávhoz, smaragdzöld (`--accent-green: #16a34a`) a sikeres találathoz és továbblépéshez, égkék (`--accent-blue: #0284c7`) a számválasztó gombok aktív állapotához.
+- **Érintési és Elrendezési Szabályok**:
+  - Minden új interaktív gomb (a számválasztó gombok és a kifestő visszaszámláló sávjának gombjai is) garantáltan eléri a minimum **`60 × 60 px`** érintőfelületet.
+  - A visszaszámláló csík kizárólag kompozitor-barát `transform: scaleX(...)` animációt használ a 60 FPS-es sima futásért.
+  - A Kezdőlap alsó licencsora keret nélküli (`12px–13px`, `--ink-muted`) szövegként illeszkedik a láblécbe, így egyetlen pixelnyi függőleges görgetést sem idéz elő.
 
 ---
 
-## 3. Technikai Architektúra és Állapotleképezés
+## 3. Főbb Termékdöntések és Kompromisszumok
+
+- **1. Döntés: Kétrétegű (Capture-Phase) Ébresztési Pajzs a Képernyővédőhöz**
+  - *Választott megoldás*: A képernyővédő nem tűnik el azonnal a lenyomás (`pointerdown`) pillanatában, hanem megvárja az ujj felemelését (vagy egy globális `capture` fázisú kattintás-elnyelő pajzs blokkol minden `click` / `pointerup` eseményt az ébresztést követő `450 ms`-ban).
+  - *Miért*: Érintőképernyőkön a böngésző a `pointerdown` után néhány tizedmásodperccel generálja a szintetikus `click` eseményt; ha a takaróréteg már a lenyomáskor eltűnik, a `click` az alatta fekvő gombra esik. A capture-fázisú pajzs 100%-osan kizárja a véletlen indítást egérrel és érintőpanellel egyaránt.
+- **2. Döntés: Zero-Clause BSD (0BSD) / Közkinccsé Tett Szabad Licenc**
+  - *Választott megoldás*: A **0BSD (BSD Zero Clause License)** szövegét alkalmazzuk magyar és angol nyelven.
+  - *Miért*: Ez a nemzetközileg elismert nyílt licenc még az MIT licencnél is szabadabb: kifejezetten megengedi a magán- és **üzleti/vállalati felhasználást**, átmárkázást és módosítást anélkül, hogy jogi szövegek kihelyezésére kötelezné az üzemeltető céget, miközben a felelősségkizárást tisztán rögzíti.
+- **3. Döntés: Kétlépcsős Számolás + Élesség-visszajelzés**
+  - *Választott megoldás*: A csillagszámolás közvetlenül ugyanazon az alsó interaktív sávon zajlik, amely a helyes válasz után átalakul az élességi kérdéssé.
+  - *Miért*: Így nem kerülnek új lebegő ablakok a formák fölé, a gyerek valóban végigpásztázza a képernyő mind a négy sarkát és közepét, ugyanakkor a diagnosztikai igen/nem visszajelzés is megmarad az Oklevél számára.
+
+---
+
+## 4. Technikai Architektúra és Állapotkezelés
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                   Alkalmazásmag és Képernyő-Router                          │
-│  • KIOSK_CONFIG (Cégnév + alapból rejtett/néma hangmód)                     │
-│  • Javított "Képélesség és Formák" feliratok a regiszterben és Oklevélen    │
-└───────────────┬─────────────────────────────────────────────┬───────────────┘
-                │                                             │
-                ▼                                             ▼
-┌───────────────────────────────────────┐     ┌───────────────────────────────┐
-│   Pixel-Kifestő Modul (24×14 Mátrix)  │     │  Károly Kaméleon Modul (7x)   │
-│  • 12 árnyalt pixel-art sablon        │     │  • 5 alapszín + 2 lágy minta  │
-│  • Kényelmes ecsetszélességű festés   │     │  • Kidolgozott kaméleon rajz  │
-│  • Ujj-pozíció figyelő Auto-Dodge HUD │     │    forgó/pislogó szemmel      │
-│    (Fent <-> Lent átköltöző menüsáv)  │     │  • Csillagkapó nyelv-animáció │
-└───────────────────────────────────────┘     └───────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Alkalmazásmag és Ébresztési Védelem                      │
+│  • Képernyővédő & Inaktivitási Ablak: Capture-fázisú Click-Shield (450 ms)   │
+│  • Kezdőlap: 100vh 5 kártyás rács + diszkrét 0BSD szabad licenc jelölés      │
+└───────────────┬──────────────────────────────────────────────┬───────────────┘
+                │                                              │
+                ▼                                              ▼
+┌────────────────────────────────────────┐    ┌────────────────────────────────┐
+│   Pixel-Kifestő Modul (24×14 Mátrix)   │    │  Képélesség és Formák Modul    │
+│  • SZÍNEZÉS (0–99%): Auto-Dodge menü   │    │  • 1. FÁZIS: Csillagszámolás   │
+│  • CSODÁLÓ SÁV (100%, 4.0 mp):         │    │    (5–8 arany csillag a vásznon│
+│    - Kisimuló, résmentes pixel-kép     │    │     + 4 db >=60px számgomb)    │
+│    - scaleX() vizuális visszaszámláló  │    │  • 2. FÁZIS: Élesség kérdés    │
+│    - [Új titkos kép] / [Tovább most!]  │    │    ([Igen, éles!] / [Homályos])│
+│  • ÖSSZESÍTŐ ABLAK (4 mp vagy gombny.) │    │  • Oklevél-eredmény mentése    │
+└────────────────────────────────────────┘    └────────────────────────────────┘
 ```
 
-### Interaktív Állapot- és Mozgáskezelés
-- **Auto-Dodge HUD vezérlés**: A menüsáv egy `.hud-docked-bottom` CSS osztályt kap, amely kizárólag hardveresen gyorsított `transform` tulajdonsággal (vagy felső/alsó pozíció-átmenettel, `pointer-events: none` kerettel) mozgatja át a sávot, ha az ujj koordinátája belép az aktuális dokkolási zóna `140px`-es előterébe. Hiszterézis-küszöb biztosítja, hogy a képernyő közepén húzva a sáv soha ne ugráljon ide-oda.
-- **Véletlenszerű sablon-rotáció (Shuffle Bag)**: A 12 pixel-alakzatot kevert sorrendben (pakli-szerűen) adagolja a rendszer, így egymás után 12 játékot indítva garantáltan mind a 12 különböző figura sorra kerül ismétlődés nélkül!
+### Adatmodell és Állapotátmenetek
+
+- **Ébresztési eseményzár (`wakeGuardUntil`)**:
+  - Amikor a képernyővédő vagy a tétlenségi ablak aktív, az érintés beállít egy `wakeGuardUntil = performance.now() + 450` időbélyeget, és a dokumentum legfelső `capture` szintjén (`addEventListener('click', ..., true)`) megállítja (`preventDefault` + `stopPropagation`) az ébresztő ujjmozdulatból származó utólagos kattintásokat.
+- **Pixel-Kifestő állapotgép (`PLAYING` → `CELEBRATING_4S` → `SUMMARY`)**:
+  - `100%` elérésekor a modul `CELEBRATING_4S` állapotba lép: a felső menüsáv elrejtőzik, a rács megkapja a résmentes megjelenítést, és elindul a `4000 ms`-os visszaszámláló sáv.
+  - Ha a felhasználó megnyomja a *„Tovább most!”* gombot, azonnal megnyílik az eredményablak (vagy továbbhalad a játékválasztóra); ha megnyomja az *„Új titkos kép”* gombot, a számláló megszakad és új figura indul; ha végignézi a 4 másodpercet, a sáv lejártakor nyílik meg az eredménykártya. Képernyőváltáskor vagy animátor-resetkor az időzítő tisztán felszabadul.
+- **Képélesség és Formák állapotgép (`COUNTING_STARS` → `ASKING_SHARPNESS` → `SUMMARY`)**:
+  - Indításkor a modul kisorsol egy `targetStarCount` értéket (`5..8`), kirajzolja pontosan ezt a számú csillagot a sarok- és középső pozíciókba, és felkínál 4 növekvő sorrendbe rendezett számválasztó gombot.
+  - Helyes szám megérintésekor a vásznon rövid csillagfény-visszajelzés fut le, az állapot átvált `ASKING_SHARPNESS` módba, majd az élességi válasz után mindkét adat bekerül az Oklevél szövegébe.

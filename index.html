@@ -203,7 +203,7 @@
             <div class="game-card-body">
               <h2 class="game-card-title">Képélesség és Formák</h2>
               <p class="game-card-desc">
-                Nézd meg közelről a színes köröket, csillagokat és betűket: minden forma szép kerek és éles?
+                Számold meg a ragyogó arany csillagokat a sarkokban és középen, majd ellenőrizd a kép élességét!
               </p>
             </div>
             <div class="game-card-cta">
@@ -214,10 +214,15 @@
 
         </div>
 
-        <!-- Alsó összesítő sáv + Oklevél megnyitó gomb -->
+        <!-- Alsó összesítő sáv + diszkrét szabad licenc jelzés + Oklevél gomb -->
         <div class="welcome-footer-bar">
-          <div class="welcome-progress-note" id="welcome-progress-note">
-            Teljesített játékok: 0 / 5 · Bármelyik kártyával kezdhetsz!
+          <div class="welcome-footer-meta">
+            <div class="welcome-progress-note" id="welcome-progress-note">
+              Teljesített játékok: 0 / 5 · Bármelyik kártyával kezdhetsz!
+            </div>
+            <p class="welcome-license-note">
+              Szabadon felhasználható nyílt szoftver (0BSD licenc) · Cégek és intézmények számára is korlátozásmentes
+            </p>
           </div>
           <button type="button" id="welcome-cert-btn" class="btn-storybook btn-green btn-lg" data-launch-screen="screen-certificate">
             <span>Oklevél megtekintése</span>
@@ -354,6 +359,23 @@
       </div>
 
       <div class="grid-matrix-container" id="grid-matrix"></div>
+
+      <!-- 4 másodperces vizuális visszaszámláló sáv 100%-os kifestéskor (a kép szabadon látható marad!) -->
+      <div class="grid-celebration-bar hidden" id="grid-celebration-bar" role="status" aria-live="polite">
+        <div class="grid-celebrate-info">
+          <div class="grid-celebrate-text-row">
+            <strong class="grid-celebrate-title" id="grid-celebrate-title">Szuper! Előbújt a titkos kép!</strong>
+            <span class="grid-celebrate-timer" id="grid-celebrate-timer-label">4.0 mp</span>
+          </div>
+          <div class="celebrate-progress-track" aria-hidden="true">
+            <div class="celebrate-progress-fill" id="grid-celebrate-bar-fill"></div>
+          </div>
+        </div>
+        <div class="grid-celebrate-actions">
+          <button type="button" class="btn-storybook" id="btn-grid-celebrate-new">Új titkos kép</button>
+          <button type="button" class="btn-storybook btn-green" id="btn-grid-celebrate-next">Tovább most!</button>
+        </div>
+      </div>
     </section>
 
     <!-- ==================================================================
@@ -496,12 +518,12 @@
           </div>
           <h2 class="dialog-title">Képélesség és Formák</h2>
           <p class="dialog-speech">
-            Nézd meg alaposan a megjelenő színes köröket, csillagokat és betűket, majd válaszd ki, hogy tisztán látszanak-e!
+            Nézd meg a három nagy formát (kört, négyzetet, háromszöget)! Számold meg a bennük ragyogó arany csillagokat — akár rájuk is koppinthatsz —, majd jelezd, hogy éles-e a kép!
           </p>
           <div class="dialog-actions">
             <button type="button" class="btn-storybook js-back-to-hub">Vissza</button>
             <button type="button" class="btn-storybook btn-blue btn-lg" id="btn-start-sharpness">
-              Formák megtekintése!
+              Kaland indítása!
             </button>
           </div>
         </div>
@@ -509,11 +531,12 @@
 
       <div class="storybook-modal-overlay hidden" id="summary-sharpness">
         <div class="storybook-dialog">
-          <h2 class="dialog-title">Szemrevételezés kész!</h2>
+          <h2 class="dialog-title">Élességpróba teljesítve!</h2>
           <p class="dialog-speech" id="sharpness-summary-text">
             Köszönjük a visszajelzést!
           </p>
           <div class="dialog-actions">
+            <button type="button" class="btn-storybook" id="btn-sharpness-replay">Új feladvány</button>
             <button type="button" class="btn-storybook btn-green btn-lg" id="btn-sharpness-finish">
               Tovább a játékokhoz!
             </button>
@@ -521,7 +544,7 @@
         </div>
       </div>
 
-      <div class="game-hud-bar">
+      <div class="game-hud-bar" id="hud-sharpness">
         <div class="hud-cluster">
           <div class="hud-reset-emblem js-triple-tap-reset" title="Nyílt Napi Játéksziget">
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -540,10 +563,22 @@
       <canvas id="sharpness-canvas"></canvas>
 
       <div class="sharpness-prompt-bar" id="sharpness-prompt-bar" style="display: none;">
-        <span class="sharpness-question">Minden forma szép kerek és tisztán olvasható?</span>
-        <div class="sharpness-btn-group">
+        <span class="sharpness-question" id="sharpness-step-question">
+          1/2. Hány arany csillag van a 3 nagy formában összesen?
+        </span>
+
+        <!-- 1. lépés: Számválasztó gombok (>= 60x60px) -->
+        <div class="sharpness-btn-group" id="sharpness-count-group">
+          <button type="button" class="btn-storybook star-count-btn" data-star-guess="4">4</button>
+          <button type="button" class="btn-storybook star-count-btn" data-star-guess="5">5</button>
+          <button type="button" class="btn-storybook star-count-btn" data-star-guess="6">6</button>
+          <button type="button" class="btn-storybook star-count-btn" data-star-guess="7">7</button>
+        </div>
+
+        <!-- 2. lépés: Képélesség megerősítése -->
+        <div class="sharpness-btn-group hidden" id="sharpness-quality-group">
           <button type="button" class="btn-storybook btn-green" id="btn-sharpness-yes">
-            Igen, éles!
+            Igen, szép éles!
           </button>
           <button type="button" class="btn-storybook btn-coral" id="btn-sharpness-no">
             Nem, homályos!

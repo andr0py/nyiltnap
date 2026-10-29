@@ -1,6 +1,6 @@
 {
-  "summary":  "Továbbfejlesztési terv: részletgazdagabb (24x14-es) pixel-kifestő 12 árnyalt mesekönyvi alakzattal, ujjközeledésre automatikusan kitérő (átköltöző) felső vezérlősáv, kidolgozottabb Károly kaméleon játék két szemkímélő mintával, valamint a \"Képélesség\" elírás javítása minden felületen.",
-  "updatedAt":  "2026-10-28T21:14:38.287001540Z",
+  "summary":  "Megvalósítási terv a képernyővédő átkattintási hibájának javításához, a Pixel-Kifestő 4 másodperces vizuális visszaszámláló sávjához, a Képélesség és Formák teszt számolós mini-feladatához, valamint a korlátozásmentes szabad (céges célra is érvényes) licenc beépítéséhez.",
+  "updatedAt":  "2026-10-29T19:40:44.337838632Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

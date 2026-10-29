@@ -275,9 +275,12 @@ const PIXEL_TEMPLATES = [
   }
 ];
 
+const CELEBRATE_DURATION_MS = 4000;
+
 let listenersBound = false;
 let onModuleComplete = null;
-let autoCompleteTimeout = null;
+let celebrateRafId = null;
+let celebrateStartTime = 0;
 let isPointerDown = false;
 let lastPoint = null;
 let lastSoundStep = 0;
@@ -291,6 +294,7 @@ let cellElements = [];
 
 const state = {
   isPlaying: false,
+  isCelebrating: false,
   filledCount: 0,
   coveredPercent: 0,
   completed: false,
@@ -347,8 +351,80 @@ function syncHudDockPosition(clientY) {
 function resetHudDock() {
   state.hudDockedBottom = false;
   const hud = document.getElementById('hud-grid');
-  if (hud) hud.classList.remove('hud-docked-bottom');
+  if (hud) {
+    hud.classList.remove('hud-docked-bottom');
+    hud.classList.remove('hud-hidden-celebrate');
+  }
   document.body.classList.remove('actively-painting');
+}
+
+function cancelCelebrationCountdown() {
+  state.isCelebrating = false;
+  if (celebrateRafId) {
+    cancelAnimationFrame(celebrateRafId);
+    celebrateRafId = null;
+  }
+  const celebrateBar = document.getElementById('grid-celebration-bar');
+  if (celebrateBar) celebrateBar.classList.add('hidden');
+}
+
+function startCelebrationCountdown() {
+  cancelCelebrationCountdown();
+  state.isCelebrating = true;
+
+  const container = document.getElementById('grid-matrix');
+  if (container) container.classList.add('completed-artwork');
+
+  const hud = document.getElementById('hud-grid');
+  if (hud) hud.classList.add('hud-hidden-celebrate');
+
+  const celebrateBar = document.getElementById('grid-celebration-bar');
+  const titleEl = document.getElementById('grid-celebrate-title');
+  const timerEl = document.getElementById('grid-celebrate-timer-label');
+  const fillEl = document.getElementById('grid-celebrate-bar-fill');
+
+  if (titleEl) {
+    titleEl.textContent = `Szuper! Előbújt: ${state.currentTemplate.name}!`;
+  }
+  if (fillEl) {
+    fillEl.style.transform = 'scaleX(1)';
+  }
+  if (timerEl) {
+    timerEl.textContent = '4.0 mp';
+  }
+  if (celebrateBar) {
+    celebrateBar.classList.remove('hidden');
+  }
+
+  if (typeof onModuleComplete === 'function') {
+    onModuleComplete('grid', { autoCertificateCheck: false });
+  }
+
+  celebrateStartTime = performance.now();
+
+  const tick = (now) => {
+    if (!state.isCelebrating) return;
+    const elapsed = now - celebrateStartTime;
+    const remainingMs = Math.max(0, CELEBRATE_DURATION_MS - elapsed);
+    const ratio = remainingMs / CELEBRATE_DURATION_MS;
+
+    if (fillEl) {
+      fillEl.style.transform = `scaleX(${ratio.toFixed(4)})`;
+    }
+    if (timerEl) {
+      timerEl.textContent = `${(remainingMs / 1000).toFixed(1)} mp`;
+    }
+
+    if (remainingMs <= 0) {
+      cancelCelebrationCountdown();
+      showGridSummary();
+      return;
+    }
+
+    celebrateRafId = requestAnimationFrame(tick);
+  };
+
+  celebrateRafId = requestAnimationFrame(tick);
 }
 
 function updateHud() {
@@ -365,6 +441,9 @@ function updateHud() {
 function buildGrid(chooseNewShape = true) {
   const container = document.getElementById('grid-matrix');
   if (!container) return;
+
+  cancelCelebrationCountdown();
+  container.classList.remove('completed-artwork');
 
   if (chooseNewShape) {
     state.currentTemplate = drawNextTemplate();
@@ -435,11 +514,7 @@ function paintBrushAt(col, row) {
     state.isPlaying = false;
     document.body.classList.remove('actively-painting');
     sound.playFanfare();
-
-    if (autoCompleteTimeout) clearTimeout(autoCompleteTimeout);
-    autoCompleteTimeout = setTimeout(() => {
-      showGridSummary();
-    }, 700);
+    startCelebrationCountdown();
   }
 }
 
@@ -466,6 +541,7 @@ function paintLineBetween(x0, y0, x1, y1) {
 }
 
 function showGridSummary() {
+  cancelCelebrationCountdown();
   state.isPlaying = false;
   document.body.classList.remove('actively-painting');
   if (state.coveredPercent > 0) {
@@ -554,6 +630,27 @@ function bindEventsOnce() {
     });
   }
 
+  const celebrateNewBtn = document.getElementById('btn-grid-celebrate-new');
+  if (celebrateNewBtn) {
+    celebrateNewBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      startGridSession(true);
+    });
+  }
+
+  const celebrateNextBtn = document.getElementById('btn-grid-celebrate-next');
+  if (celebrateNextBtn) {
+    celebrateNextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sound.playClick();
+      cancelCelebrationCountdown();
+      if (typeof onModuleComplete === 'function') {
+        onModuleComplete('grid', { exitToHub: true });
+      }
+    });
+  }
+
   const container = document.getElementById('grid-matrix');
   if (container) {
     container.addEventListener('pointerdown', (e) => {
@@ -566,7 +663,6 @@ function bindEventsOnce() {
 
     container.addEventListener('pointermove', (e) => {
       if (!state.isPlaying) return;
-      // Ha csak közelít az egér/ujj a menüsávhoz, már akkor is térjen ki udvariasan, ha színez!
       if (isPointerDown || e.pointerType === 'touch') {
         const prev = lastPoint || { x: e.clientX, y: e.clientY };
         paintLineBetween(prev.x, prev.y, e.clientX, e.clientY);
@@ -602,11 +698,8 @@ export function stopSession() {
   state.isPlaying = false;
   isPointerDown = false;
   lastPoint = null;
+  cancelCelebrationCountdown();
   resetHudDock();
-  if (autoCompleteTimeout) {
-    clearTimeout(autoCompleteTimeout);
-    autoCompleteTimeout = null;
-  }
 }
 
 export function init(callbacks = {}) {
